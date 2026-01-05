@@ -78,6 +78,7 @@ const AdminFacultyCredentials = () => {
     const [existingFaculty, setExistingFaculty] = useState([])
     const [loadingFaculty, setLoadingFaculty] = useState(false)
     const [resetting, setResetting] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
 
     const handleFileSelect = async (file) => {
         if (!file) return
@@ -606,7 +607,12 @@ const AdminFacultyCredentials = () => {
                             <CardContent>
                                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                                     <Typography variant="h6" fontWeight={700}>
-                                        Existing Faculty Credentials ({existingFaculty.length})
+                                        Existing Faculty Credentials ({existingFaculty.filter(faculty => {
+                                            const query = searchQuery.toLowerCase()
+                                            return faculty.name.toLowerCase().includes(query) ||
+                                                faculty.email.toLowerCase().includes(query) ||
+                                                faculty.employeeId.toLowerCase().includes(query)
+                                        }).length}{searchQuery ? ` of ${existingFaculty.length}` : ''})
                                     </Typography>
                                     <Box display="flex" gap={1}>
                                         <Button
@@ -640,6 +646,30 @@ const AdminFacultyCredentials = () => {
                                     </Box>
                                 </Box>
 
+                                {/* Search Bar */}
+                                <Box mb={2}>
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        placeholder="Search by name, email, or employee ID..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                                bgcolor: alpha('#f3f4f6', 0.5)
+                                            }
+                                        }}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <Box sx={{ mr: 1, display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                                                    🔍
+                                                </Box>
+                                            )
+                                        }}
+                                    />
+                                </Box>
+
                                 {loadingFaculty ? (
                                     <Box display="flex" justifyContent="center" py={4}>
                                         <CircularProgress />
@@ -665,65 +695,73 @@ const AdminFacultyCredentials = () => {
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
-                                                {existingFaculty.map((faculty) => (
-                                                    <StyledTableRow key={faculty._id}>
-                                                        <StyledTableCell>
-                                                            <Typography variant="body2" fontWeight={600}>{faculty.name}</Typography>
-                                                        </StyledTableCell>
-                                                        <StyledTableCell>
-                                                            <Typography variant="body2">{faculty.email}</Typography>
-                                                        </StyledTableCell>
-                                                        <StyledTableCell>
-                                                            <Typography variant="body2">{faculty.employeeId}</Typography>
-                                                        </StyledTableCell>
-                                                        <StyledTableCell>
-                                                            <Typography variant="body2">{faculty.department || '-'}</Typography>
-                                                        </StyledTableCell>
-                                                        <StyledTableCell>
-                                                            <Typography variant="body2">{faculty.campus || '-'}</Typography>
-                                                        </StyledTableCell>
-                                                        <StyledTableCell>
-                                                            <Box
-                                                                sx={{
-                                                                    px: 1,
-                                                                    py: 0.5,
-                                                                    borderRadius: 1,
-                                                                    bgcolor: faculty.isActive ? alpha('#10b981', 0.1) : alpha('#ef4444', 0.1),
-                                                                    display: 'inline-block'
-                                                                }}
-                                                            >
-                                                                <Typography
-                                                                    variant="caption"
-                                                                    fontWeight={600}
-                                                                    color={faculty.isActive ? 'success.main' : 'error.main'}
+                                                {existingFaculty
+                                                    .filter(faculty => {
+                                                        if (!searchQuery) return true
+                                                        const query = searchQuery.toLowerCase()
+                                                        return faculty.name.toLowerCase().includes(query) ||
+                                                            faculty.email.toLowerCase().includes(query) ||
+                                                            faculty.employeeId.toLowerCase().includes(query)
+                                                    })
+                                                    .map((faculty) => (
+                                                        <StyledTableRow key={faculty._id}>
+                                                            <StyledTableCell>
+                                                                <Typography variant="body2" fontWeight={600}>{faculty.name}</Typography>
+                                                            </StyledTableCell>
+                                                            <StyledTableCell>
+                                                                <Typography variant="body2">{faculty.email}</Typography>
+                                                            </StyledTableCell>
+                                                            <StyledTableCell>
+                                                                <Typography variant="body2">{faculty.employeeId}</Typography>
+                                                            </StyledTableCell>
+                                                            <StyledTableCell>
+                                                                <Typography variant="body2">{faculty.department || '-'}</Typography>
+                                                            </StyledTableCell>
+                                                            <StyledTableCell>
+                                                                <Typography variant="body2">{faculty.campus || '-'}</Typography>
+                                                            </StyledTableCell>
+                                                            <StyledTableCell>
+                                                                <Box
+                                                                    sx={{
+                                                                        px: 1,
+                                                                        py: 0.5,
+                                                                        borderRadius: 1,
+                                                                        bgcolor: faculty.isActive ? alpha('#10b981', 0.1) : alpha('#ef4444', 0.1),
+                                                                        display: 'inline-block'
+                                                                    }}
                                                                 >
-                                                                    {faculty.isActive ? 'Active' : 'Inactive'}
-                                                                </Typography>
-                                                            </Box>
-                                                        </StyledTableCell>
-                                                        <StyledTableCell>
-                                                            <Button
-                                                                size="small"
-                                                                variant="outlined"
-                                                                color="warning"
-                                                                onClick={() => {
-                                                                    setConfirmDialog({
-                                                                        open: true,
-                                                                        message: `Reset password for ${faculty.name}? New credentials will be sent to ${faculty.email}.`,
-                                                                        onConfirm: () => {
-                                                                            handleResetPassword(faculty._id, false)
-                                                                            setConfirmDialog({ open: false, message: '', onConfirm: null })
-                                                                        }
-                                                                    })
-                                                                }}
-                                                                disabled={resetting}
-                                                                sx={{ textTransform: 'none', fontSize: '0.75rem' }}
-                                                            >
-                                                                Reset Password
-                                                            </Button>
-                                                        </StyledTableCell>
-                                                    </StyledTableRow>
-                                                ))}
+                                                                    <Typography
+                                                                        variant="caption"
+                                                                        fontWeight={600}
+                                                                        color={faculty.isActive ? 'success.main' : 'error.main'}
+                                                                    >
+                                                                        {faculty.isActive ? 'Active' : 'Inactive'}
+                                                                    </Typography>
+                                                                </Box>
+                                                            </StyledTableCell>
+                                                            <StyledTableCell>
+                                                                <Button
+                                                                    size="small"
+                                                                    variant="outlined"
+                                                                    color="warning"
+                                                                    onClick={() => {
+                                                                        setConfirmDialog({
+                                                                            open: true,
+                                                                            message: `Reset password for ${faculty.name}? New credentials will be sent to ${faculty.email}.`,
+                                                                            onConfirm: () => {
+                                                                                handleResetPassword(faculty._id, false)
+                                                                                setConfirmDialog({ open: false, message: '', onConfirm: null })
+                                                                            }
+                                                                        })
+                                                                    }}
+                                                                    disabled={resetting}
+                                                                    sx={{ textTransform: 'none', fontSize: '0.75rem' }}
+                                                                >
+                                                                    Reset Password
+                                                                </Button>
+                                                            </StyledTableCell>
+                                                        </StyledTableRow>
+                                                    ))}
                                             </TableBody>
                                         </Table>
                                     </TableContainer>
