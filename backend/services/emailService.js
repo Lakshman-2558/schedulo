@@ -1,72 +1,102 @@
-const nodemailer = require('nodemailer');
+const brevo = require('@getbrevo/brevo');
 
 class EmailService {
   constructor() {
-    this.transporter = null;
-    this.initializeTransporter();
+    this.apiInstance = null;
+    this.senderEmail = null;
+    this.senderName = null;
+    this.initializeBrevo();
   }
 
-  initializeTransporter() {
-    if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-      this.transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT || 587,
-        secure: false,
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS
-        }
-      });
+  initializeBrevo() {
+    if (process.env.BREVO_API_KEY && process.env.BREVO_SENDER_EMAIL) {
+      try {
+        // Initialize Brevo API client
+        this.apiInstance = new brevo.TransactionalEmailsApi();
+
+        // Set API key
+        const apiKey = this.apiInstance.authentications['apiKey'];
+        apiKey.apiKey = process.env.BREVO_API_KEY;
+
+        // Set sender details
+        this.senderEmail = process.env.BREVO_SENDER_EMAIL;
+        this.senderName = process.env.BREVO_SENDER_NAME || 'Schedulo';
+
+        console.log('✅ Brevo Email Service initialized successfully');
+      } catch (error) {
+        console.error('❌ Failed to initialize Brevo:', error.message);
+      }
+    } else {
+      console.warn('⚠️  Brevo Email Service not configured');
     }
   }
 
   /**
-   * Send email notification
+   * Send email notification using Brevo API
    */
   async sendEmail(to, subject, html, text = null, attachments = []) {
-    if (!this.transporter) {
+    if (!this.apiInstance) {
       const missingVars = [];
-      if (!process.env.EMAIL_HOST) missingVars.push('EMAIL_HOST');
-      if (!process.env.EMAIL_USER) missingVars.push('EMAIL_USER');
-      if (!process.env.EMAIL_PASS) missingVars.push('EMAIL_PASS');
+      if (!process.env.BREVO_API_KEY) missingVars.push('BREVO_API_KEY');
+      if (!process.env.BREVO_SENDER_EMAIL) missingVars.push('BREVO_SENDER_EMAIL');
 
       console.warn(`⚠️  Email service not configured. Missing: ${missingVars.join(', ')}`);
-      console.warn('   Please configure email settings in .env file');
+      console.warn('   Please configure Brevo settings in .env file');
       return { success: false, message: `Email service not configured. Missing: ${missingVars.join(', ')}` };
     }
 
     try {
       console.log(`   📤 Sending email to: ${to}`);
-      console.log(`   📧 From: ${process.env.EMAIL_USER}`);
+      console.log(`   📧 From: ${this.senderEmail}`);
       console.log(`   📝 Subject: ${subject}`);
       if (attachments.length > 0) {
         console.log(`   📎 Attachments: ${attachments.length}`);
       }
 
-      const mailOptions = {
-        from: `"Schedulo" <${process.env.EMAIL_USER}>`,
-        to,
-        subject,
-        text: text || html.replace(/<[^>]*>/g, ''),
-        html
+      // Prepare email data for Brevo
+      const sendSmtpEmail = new brevo.SendSmtpEmail();
+
+      sendSmtpEmail.sender = {
+        name: this.senderName,
+        email: this.senderEmail
       };
 
-      if (attachments.length > 0) {
-        mailOptions.attachments = attachments;
+      sendSmtpEmail.to = [{ email: to }];
+      sendSmtpEmail.subject = subject;
+      sendSmtpEmail.htmlContent = html;
+
+      // Add text content if provided, otherwise strip HTML
+      if (text) {
+        sendSmtpEmail.textContent = text;
       }
 
-      const info = await this.transporter.sendMail(mailOptions);
+      // Add attachments if provided
+      if (attachments.length > 0) {
+        sendSmtpEmail.attachment = attachments.map(att => ({
+          name: att.filename,
+          content: att.content.toString('base64')
+        }));
+      }
 
-      console.log(`   ✅ Email sent successfully! Message ID: ${info.messageId}`);
-      return { success: true, messageId: info.messageId };
+      // Send email via Brevo API
+      const response = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+
+      console.log(`   ✅ Email sent successfully! Message ID: ${response.messageId}`);
+      return { success: true, messageId: response.messageId };
     } catch (error) {
       console.error(`   ❌ Email send error: ${error.message}`);
-      if (error.code === 'EAUTH') {
-        console.error('   ⚠️  Authentication failed. Check EMAIL_USER and EMAIL_PASS in .env');
-        console.error('   💡 For Gmail, use App Password, not regular password');
-      } else if (error.code === 'ECONNECTION') {
-        console.error('   ⚠️  Connection failed. Check EMAIL_HOST and EMAIL_PORT in .env');
+
+      if (error.response) {
+        console.error(`   ⚠️  Brevo API Error: ${JSON.stringify(error.response.body)}`);
       }
+
+      if (error.message.includes('Invalid API key')) {
+        console.error('   ⚠️  Authentication failed. Check BREVO_API_KEY in .env');
+      } else if (error.message.includes('sender')) {
+        console.error('   ⚠️  Sender email not verified. Check BREVO_SENDER_EMAIL in .env');
+        console.error('   💡 Make sure to verify your sender email in Brevo dashboard');
+      }
+
       return { success: false, message: error.message, code: error.code };
     }
   }

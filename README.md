@@ -249,7 +249,7 @@ A **production-ready** full-stack application for automated invigilator allocati
 - **Authentication**: JWT (jsonwebtoken)
 - **File Uploads**: Multer
 - **Real-time**: Socket.io
-- **Email**: Nodemailer (Gmail SMTP support)
+- **Email**: Brevo API (Transactional Email Service)
 - **PDF Generation**: 
   - **jsPDF** (v2.5.1) - For allocation reports and duty letters
   - **docx** (v9.5.1) - For Word document generation (optional)
@@ -428,18 +428,19 @@ PORT=5000
 MONGODB_URI=mongodb://localhost:27017/schedulo
 JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
 JWT_EXPIRE=7d
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
+BREVO_API_KEY=your_brevo_api_key_here
+BREVO_SENDER_EMAIL=your_verified_sender_email@domain.com
+BREVO_SENDER_NAME=Schedulo
 FRONTEND_URL=http://localhost:3000
 UNIVERSITY_NAME=Vignan University
 ```
 
-**Note**: For Gmail, you need to:
-- Enable 2-factor authentication
-- Generate an App Password: https://myaccount.google.com/apppasswords
-- Use the App Password in `EMAIL_PASS`
+**Note**: For Brevo, you need to:
+- Sign up for a free Brevo account at https://www.brevo.com
+- Go to **SMTP & API** settings
+- Copy your **API key** (v3)
+- Add and verify your sender email address
+- Use the API key in `BREVO_API_KEY` and verified email in `BREVO_SENDER_EMAIL`
 
 4. Create admin user:
 ```bash
@@ -776,10 +777,9 @@ The system automatically detects conflicts with severity levels:
 ### Configuration
 Configure email settings in `backend/.env`:
 ```env
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
+BREVO_API_KEY=your_brevo_api_key_here
+BREVO_SENDER_EMAIL=your_verified_sender_email@domain.com
+BREVO_SENDER_NAME=Schedulo
 ```
 
 ### Email Types
@@ -955,10 +955,9 @@ PORT=5000
 MONGODB_URI=mongodb://your-production-connection-string
 JWT_SECRET=strong_random_secret_key_change_this
 JWT_EXPIRE=7d
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your_production_email@gmail.com
-EMAIL_PASS=your_production_app_password
+BREVO_API_KEY=your_brevo_api_key_here
+BREVO_SENDER_EMAIL=your_verified_sender_email@domain.com
+BREVO_SENDER_NAME=Schedulo
 FRONTEND_URL=https://your-frontend-domain.com
 UNIVERSITY_NAME=Your University Name
 ```

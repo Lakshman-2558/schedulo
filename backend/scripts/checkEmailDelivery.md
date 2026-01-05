@@ -30,10 +30,9 @@ If the server shows "✅ Email sent successfully" but you don't see the email, f
 
 Make sure your `.env` file has:
 ```env
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=thanujkrishna22@gmail.com
-EMAIL_PASS=your_16_character_app_password  # NOT your regular Gmail password!
+BREVO_API_KEY=your_brevo_api_key_here
+BREVO_SENDER_EMAIL=your_verified_sender_email@domain.com
+BREVO_SENDER_NAME=Schedulo
 ```
 
 ### 4. Test Email Delivery

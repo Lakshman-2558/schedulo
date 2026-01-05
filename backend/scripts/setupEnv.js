@@ -20,7 +20,7 @@ const setupEnv = () => {
     // Check if .env already exists
     if (fs.existsSync(envPath)) {
       console.log('✅ .env file already exists');
-      
+
       // Read and check if JWT_SECRET is set
       const envContent = fs.readFileSync(envPath, 'utf8');
       if (envContent.includes('JWT_SECRET=') && !envContent.includes('JWT_SECRET=your_')) {
@@ -55,11 +55,10 @@ MONGODB_URI=mongodb://localhost:27017/schedulo
 JWT_SECRET=${generateSecret()}
 JWT_EXPIRE=7d
 
-# Email Configuration (Nodemailer) - Optional
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
+# Email Configuration (Brevo API)
+BREVO_API_KEY=your_brevo_api_key_here
+BREVO_SENDER_EMAIL=your_verified_sender_email@domain.com
+BREVO_SENDER_NAME=Schedulo
 
 # University Details (for duty letters)
 UNIVERSITY_NAME=Vignan University
@@ -80,7 +79,7 @@ FRONTEND_URL=http://localhost:3000
     console.log('   1. Review the .env file');
     console.log('   2. Update MONGODB_URI if needed');
     console.log('   3. Restart your backend server');
-    
+
   } catch (error) {
     console.error('❌ Error creating .env file:', error.message);
     process.exit(1);
