@@ -113,18 +113,9 @@ router.get('/dashboard', async (req, res) => {
       .limit(10)
       .lean();
 
-    // Manually populate faculty from Faculty collection
+    // Manually populate faculty from both Faculty collections
     const facultyIds = [...new Set(recentAllocations.map(a => a.faculty?.toString()).filter(Boolean))];
-    const facultyMap = new Map();
-
-    if (facultyIds.length > 0) {
-      const facultyMembers = await FacultyUpload.find({ _id: { $in: facultyIds } })
-        .select('name email employeeId department campus')
-        .lean();
-      facultyMembers.forEach(f => {
-        facultyMap.set(f._id.toString(), f);
-      });
-    }
+    const facultyMap = await populateFacultyMap(facultyIds);
 
     // Attach faculty data to allocations
     const recentAllocationsWithFaculty = recentAllocations.map(allocation => {
