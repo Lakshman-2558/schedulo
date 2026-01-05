@@ -2,12 +2,12 @@ import axios from 'axios'
 
 // API URL configuration
 // Toggle between local and deployed backend
-const USE_LOCAL_BACKEND = true // Set to false to use deployed backend
+const USE_LOCAL_BACKEND = false // Set to false to use deployed backend
 
 // In development with local backend: uses Vite proxy (/api -> http://localhost:5000)
 // In development with deployed backend: uses deployed URL
 // In production: uses environment variable VITE_API_URL
-const DEPLOYED_API_URL = 'https://invigo-qehc.onrender.com/api'
+const DEPLOYED_API_URL = 'https://schedulo-tpqv.onrender.com/api'
 const LOCAL_API_URL = '/api'
 
 export const API_URL = import.meta.env.VITE_API_URL || (USE_LOCAL_BACKEND ? LOCAL_API_URL : DEPLOYED_API_URL)

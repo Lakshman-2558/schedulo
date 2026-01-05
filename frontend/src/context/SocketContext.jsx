@@ -21,9 +21,9 @@ export const SocketProvider = ({ children }) => {
     if (user) {
       // Socket.io URL configuration - matches api.js settings
       // Toggle between local and deployed backend
-      const USE_LOCAL_BACKEND = true // Set to false to use deployed backend
+      const USE_LOCAL_BACKEND = false // Set to false to use deployed backend
 
-      const DEPLOYED_API_URL = 'https://invigo-qehc.onrender.com/api'
+      const DEPLOYED_API_URL = 'https://schedulo-tpqv.onrender.com/api'
       const LOCAL_API_URL = 'http://localhost:5000'
 
       let apiUrl = import.meta.env.VITE_API_URL || (USE_LOCAL_BACKEND ? LOCAL_API_URL : DEPLOYED_API_URL)
