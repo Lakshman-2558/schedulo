@@ -1,10 +1,75 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Layout from '../../components/Layout'
 import api from '../../utils/api'
 import Calendar from 'react-calendar'
 import moment from 'moment'
-import { Calendar as CalendarIcon, X } from 'lucide-react'
 import toast from 'react-hot-toast'
+import 'react-calendar/dist/Calendar.css'
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
+  Chip,
+  CircularProgress,
+  Fade,
+  Grow,
+  alpha,
+  Divider,
+} from '@mui/material'
+import {
+  CalendarToday as CalendarIcon,
+  Close as CloseIcon,
+  LocationOn as LocationIcon,
+  AccessTime as ClockIcon,
+  School as SchoolIcon,
+} from '@mui/icons-material'
+import { styled } from '@mui/material/styles'
+
+const StyledCalendar = styled('div')(({ theme }) => ({
+  '& .react-calendar': {
+    width: '100%',
+    border: 'none',
+    borderRadius: 16,
+    padding: theme.spacing(2),
+    fontFamily: theme.typography.fontFamily,
+  },
+  '& .react-calendar__tile': {
+    padding: '1em 0.5em',
+    borderRadius: 8,
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+    },
+  },
+  '& .react-calendar__tile--active': {
+    background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%) !important`,
+    color: 'white !important',
+  },
+  '& .react-calendar__tile--now': {
+    backgroundColor: alpha(theme.palette.warning.main, 0.1),
+    fontWeight: 700,
+  },
+  '& .bg-blue-100': {
+    backgroundColor: alpha(theme.palette.info.main, 0.15),
+    fontWeight: 600,
+  },
+}))
+
+const EventCard = styled(Card)(({ theme, color }) => ({
+  borderLeft: `4px solid ${color || theme.palette.primary.main}`,
+  borderRadius: 12,
+  transition: 'all 0.2s ease',
+  cursor: 'pointer',
+  '&:hover': {
+    transform: 'translateX(8px)',
+    boxShadow: theme.shadows[4],
+  },
+}))
 
 const FacultyCalendar = () => {
   const [events, setEvents] = useState([])
@@ -36,7 +101,7 @@ const FacultyCalendar = () => {
 
   const filterEvents = () => {
     const dateStr = moment(selectedDate).format('YYYY-MM-DD')
-    const filtered = events.filter(event => {
+    const filtered = events.filter((event) => {
       const eventDate = moment(event.start).format('YYYY-MM-DD')
       return eventDate === dateStr
     })
@@ -45,162 +110,246 @@ const FacultyCalendar = () => {
 
   const tileClassName = ({ date }) => {
     const dateStr = moment(date).format('YYYY-MM-DD')
-    const hasEvents = events.some(event =>
-      moment(event.start).format('YYYY-MM-DD') === dateStr
-    )
+    const hasEvents = events.some((event) => moment(event.start).format('YYYY-MM-DD') === dateStr)
     return hasEvents ? 'bg-blue-100' : ''
   }
 
   const tileContent = ({ date }) => {
     const dateStr = moment(date).format('YYYY-MM-DD')
-    const dayEvents = events.filter(event =>
-      moment(event.start).format('YYYY-MM-DD') === dateStr
-    )
+    const dayEvents = events.filter((event) => moment(event.start).format('YYYY-MM-DD') === dateStr)
     return dayEvents.length > 0 ? (
-      <div className="text-xs text-center mt-1">
-        <span className="bg-blue-500 text-white rounded-full w-5 h-5 inline-flex items-center justify-center">
-          {dayEvents.length}
-        </span>
-      </div>
+      <Box textAlign="center" mt={0.5}>
+        <Chip
+          label={dayEvents.length}
+          size="small"
+          sx={{
+            height: 20,
+            minWidth: 20,
+            fontSize: '0.7rem',
+            bgcolor: '#3b82f6',
+            color: 'white',
+            fontWeight: 700,
+          }}
+        />
+      </Box>
     ) : null
   }
 
   if (loading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
-        </div>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+          <CircularProgress size={60} thickness={4} />
+        </Box>
       </Layout>
     )
   }
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-2">
-            <CalendarIcon className="w-6 h-6 sm:w-8 sm:h-8" />
-            My Calendar
-          </h1>
-        </div>
+      <Fade in timeout={600}>
+        <Box>
+          {/* Header */}
+          <Box mb={4}>
+            <Box display="flex" alignItems="center" gap={1.5} mb={1}>
+              <CalendarIcon sx={{ fontSize: 32, color: 'primary.main' }} />
+              <Typography
+                variant="h4"
+                fontWeight={700}
+                sx={{
+                  background: 'linear-gradient(135deg, #1a56db 0%, #6366f1 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                My Calendar
+              </Typography>
+            </Box>
+            <Typography variant="body1" color="text.secondary">
+              View your exam invigilation schedule
+            </Typography>
+          </Box>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Calendar */}
-          <div className="lg:col-span-2">
-            <div className="card">
-              <Calendar
-                onChange={setSelectedDate}
-                value={selectedDate}
-                tileClassName={tileClassName}
-                tileContent={tileContent}
-                className="w-full"
-              />
-            </div>
-          </div>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' },
+              gap: 3,
+            }}
+          >
+            {/* Calendar */}
+            <Grow in timeout={600}>
+              <Card sx={{ borderRadius: 3 }}>
+                <CardContent>
+                  <StyledCalendar>
+                    <Calendar
+                      onChange={setSelectedDate}
+                      value={selectedDate}
+                      tileClassName={tileClassName}
+                      tileContent={tileContent}
+                    />
+                  </StyledCalendar>
+                </CardContent>
+              </Card>
+            </Grow>
 
-          {/* Events List */}
-          <div className="lg:col-span-1">
-            <div className="card">
-              <h2 className="text-lg font-semibold mb-4">
-                {moment(selectedDate).format('MMMM DD, YYYY')}
-              </h2>
+            {/* Events List */}
+            <Grow in timeout={700}>
+              <Card sx={{ borderRadius: 3 }}>
+                <CardContent>
+                  <Typography variant="h6" fontWeight={700} gutterBottom>
+                    {moment(selectedDate).format('MMMM DD, YYYY')}
+                  </Typography>
+                  <Divider sx={{ my: 2 }} />
 
-              {filteredEvents.length === 0 ? (
-                <p className="text-gray-500 text-sm">No duties on this date</p>
-              ) : (
-                <div className="space-y-3 max-h-[600px] overflow-y-auto">
-                  {filteredEvents.map((event, index) => (
-                    <div
-                      key={index}
-                      onClick={() => setSelectedEvent(event)}
-                      className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                      style={{ borderLeftColor: event.resource?.color || '#3B82F6', borderLeftWidth: '4px' }}
-                    >
-                      <div className="font-medium text-sm">{event.title}</div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {moment(event.start).format('HH:mm')} - {moment(event.end).format('HH:mm')}
-                      </div>
-                      {event.resource?.department && (
-                        <div className="text-xs text-gray-500">{event.resource.department}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+                  {filteredEvents.length === 0 ? (
+                    <Box textAlign="center" py={4}>
+                      <CalendarIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1, opacity: 0.3 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        No duties on this date
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: 600, overflowY: 'auto' }}>
+                      {filteredEvents.map((event, index) => (
+                        <EventCard
+                          key={index}
+                          color={event.resource?.color || '#3B82F6'}
+                          onClick={() => setSelectedEvent(event)}
+                        >
+                          <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                            <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                              {event.title}
+                            </Typography>
+                            <Box display="flex" alignItems="center" gap={0.5} mb={0.5}>
+                              <ClockIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                              <Typography variant="caption" color="text.secondary">
+                                {moment(event.start).format('HH:mm')} - {moment(event.end).format('HH:mm')}
+                              </Typography>
+                            </Box>
+                            {event.resource?.department && (
+                              <Box display="flex" alignItems="center" gap={0.5}>
+                                <SchoolIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                                <Typography variant="caption" color="text.secondary">
+                                  {event.resource.department}
+                                </Typography>
+                              </Box>
+                            )}
+                          </CardContent>
+                        </EventCard>
+                      ))}
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            </Grow>
+          </Box>
 
-        {/* Event Detail Modal */}
-        {selectedEvent && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-bold">Invigilation Duty</h3>
-                  <button
-                    onClick={() => setSelectedEvent(null)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
-
-                <div className="space-y-3">
+          {/* Event Detail Dialog */}
+          <Dialog
+            open={!!selectedEvent}
+            onClose={() => setSelectedEvent(null)}
+            maxWidth="sm"
+            fullWidth
+            PaperProps={{ sx: { borderRadius: 3 } }}
+          >
+            <DialogTitle>
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Typography variant="h6" fontWeight={700}>
+                  Invigilation Duty Details
+                </Typography>
+                <IconButton onClick={() => setSelectedEvent(null)} size="small">
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+            </DialogTitle>
+            <DialogContent>
+              {selectedEvent && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {selectedEvent.resource?.examName && (
-                    <div>
-                      <span className="font-medium">Exam:</span> {selectedEvent.resource.examName}
-                    </div>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                        Exam
+                      </Typography>
+                      <Typography variant="body1">{selectedEvent.resource.examName}</Typography>
+                    </Box>
                   )}
                   {selectedEvent.resource?.courseCode && (
-                    <div>
-                      <span className="font-medium">Course Code:</span> {selectedEvent.resource.courseCode}
-                    </div>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                        Course Code
+                      </Typography>
+                      <Typography variant="body1">{selectedEvent.resource.courseCode}</Typography>
+                    </Box>
                   )}
-                  <div>
-                    <span className="font-medium">Date:</span> {moment(selectedEvent.start).format('MMMM DD, YYYY')}
-                  </div>
-                  <div>
-                    <span className="font-medium">Time:</span> {moment(selectedEvent.start).format('HH:mm')} - {moment(selectedEvent.end).format('HH:mm')}
-                  </div>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                      Date
+                    </Typography>
+                    <Typography variant="body1">{moment(selectedEvent.start).format('MMMM DD, YYYY')}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                      Time
+                    </Typography>
+                    <Typography variant="body1">
+                      {moment(selectedEvent.start).format('HH:mm')} - {moment(selectedEvent.end).format('HH:mm')}
+                    </Typography>
+                  </Box>
                   {selectedEvent.resource?.department && (
-                    <div>
-                      <span className="font-medium">Department:</span> {selectedEvent.resource.department}
-                    </div>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                        Department
+                      </Typography>
+                      <Typography variant="body1">{selectedEvent.resource.department}</Typography>
+                    </Box>
                   )}
                   {selectedEvent.resource?.campus && (
-                    <div>
-                      <span className="font-medium">Campus:</span> {selectedEvent.resource.campus}
-                    </div>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                        Campus
+                      </Typography>
+                      <Typography variant="body1">{selectedEvent.resource.campus}</Typography>
+                    </Box>
                   )}
                   {selectedEvent.resource?.classroom && (
-                    <div>
-                      <span className="font-medium">Classroom:</span> {selectedEvent.resource.classroom.roomNumber} - {selectedEvent.resource.classroom.block} (Floor {selectedEvent.resource.classroom.floor})
-                    </div>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                        Classroom
+                      </Typography>
+                      <Typography variant="body1">
+                        {selectedEvent.resource.classroom.roomNumber} - {selectedEvent.resource.classroom.block} (Floor{' '}
+                        {selectedEvent.resource.classroom.floor})
+                      </Typography>
+                    </Box>
                   )}
                   {selectedEvent.resource?.status && (
-                    <div>
-                      <span className="font-medium">Status:</span>
-                      <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${selectedEvent.resource.status === 'confirmed'
-                        ? 'bg-green-100 text-green-800'
-                        : selectedEvent.resource.status === 'requested_change'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-blue-100 text-blue-800'
-                        }`}>
-                        {selectedEvent.resource.status}
-                      </span>
-                    </div>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" fontWeight={600} display="block" mb={0.5}>
+                        Status
+                      </Typography>
+                      <Chip
+                        label={selectedEvent.resource.status}
+                        size="small"
+                        color={
+                          selectedEvent.resource.status === 'confirmed'
+                            ? 'success'
+                            : selectedEvent.resource.status === 'requested_change'
+                              ? 'warning'
+                              : 'primary'
+                        }
+                      />
+                    </Box>
                   )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+                </Box>
+              )}
+            </DialogContent>
+          </Dialog>
+        </Box>
+      </Fade>
     </Layout>
   )
 }
 
 export default FacultyCalendar
-

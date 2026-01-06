@@ -369,18 +369,39 @@ router.get('/faculty', async (req, res) => {
       ];
     }
 
-    // Get faculty from the 'faculties' collection
-    const faculty = await FacultyUpload.find(filter).select('-password').sort({ name: 1 });
+    // Get faculty from BOTH collections since allocations can reference either
+    const [facultyCredentials, facultyUploads] = await Promise.all([
+      FacultyCredentials.find(filter).select('-password -resetOTP -resetOTPExpires').sort({ name: 1 }).lean(),
+      FacultyUpload.find(filter).select('-password').sort({ name: 1 }).lean()
+    ]);
 
-    // Get workload for each faculty
+    // Combine both lists and remove duplicates based on email
+    const emailMap = new Map();
+    const allFaculty = [];
+
+    // Add FacultyCredentials first (priority for login-enabled faculty)
+    facultyCredentials.forEach(f => {
+      emailMap.set(f.email.toLowerCase(), f);
+      allFaculty.push({ ...f, source: 'credentials' });
+    });
+
+    // Add FacultyUpload only if email doesn't exist in credentials
+    facultyUploads.forEach(f => {
+      if (!emailMap.has(f.email.toLowerCase())) {
+        emailMap.set(f.email.toLowerCase(), f);
+        allFaculty.push({ ...f, source: 'upload' });
+      }
+    });
+
+    // Get workload for each faculty by checking allocations with their _id
     const facultyWithWorkload = await Promise.all(
-      FacultyUpload.map(async (f) => {
+      allFaculty.map(async (f) => {
         const allocations = await Allocation.find({
           faculty: f._id,
           status: { $ne: 'cancelled' }
         });
         return {
-          ...f.toObject(),
+          ...f,
           workload: {
             totalDuties: allocations.length,
             totalHours: allocations.reduce((sum, a) => {
@@ -399,6 +420,7 @@ router.get('/faculty', async (req, res) => {
       data: facultyWithWorkload
     });
   } catch (error) {
+    console.error('Error in /api/admin/faculty:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -433,21 +455,48 @@ router.get('/faculty/search', async (req, res) => {
     if (campus) filter.campus = campus;
     if (department) filter.department = department;
 
-    // Get faculty from the 'faculties' collection
-    const faculty = await FacultyUpload.find(filter)
-      .select('name email employeeId department campus phone isActive')
-      .sort({ name: 1 })
-      .limit(50); // Limit results to 50
+    // Get faculty from BOTH collections
+    const [facultyCredentials, facultyUploads] = await Promise.all([
+      FacultyCredentials.find(filter)
+        .select('name email employeeId department campus phone isActive')
+        .sort({ name: 1 })
+        .limit(50)
+        .lean(),
+      FacultyUpload.find(filter)
+        .select('name email employeeId department campus phone isActive')
+        .sort({ name: 1 })
+        .limit(50)
+        .lean()
+    ]);
+
+    // Combine and deduplicate by email
+    const emailMap = new Map();
+    const allFaculty = [];
+
+    facultyCredentials.forEach(f => {
+      emailMap.set(f.email.toLowerCase(), f);
+      allFaculty.push({ ...f, source: 'credentials' });
+    });
+
+    facultyUploads.forEach(f => {
+      if (!emailMap.has(f.email.toLowerCase())) {
+        emailMap.set(f.email.toLowerCase(), f);
+        allFaculty.push({ ...f, source: 'upload' });
+      }
+    });
+
+    // Limit to 50 total results
+    const limitedFaculty = allFaculty.slice(0, 50);
 
     // Get current workload for each faculty
     const facultyWithWorkload = await Promise.all(
-      FacultyUpload.map(async (f) => {
+      limitedFaculty.map(async (f) => {
         const allocations = await Allocation.find({
           faculty: f._id,
           status: { $ne: 'cancelled' }
         });
         return {
-          ...f.toObject(),
+          ...f,
           workload: {
             totalDuties: allocations.length,
             totalHours: allocations.reduce((sum, a) => {
@@ -466,6 +515,7 @@ router.get('/faculty/search', async (req, res) => {
       data: facultyWithWorkload
     });
   } catch (error) {
+    console.error('Error in /api/admin/faculty/search:', error);
     res.status(500).json({
       success: false,
       message: error.message
