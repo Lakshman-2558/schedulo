@@ -1,8 +1,81 @@
 import { useEffect, useState } from 'react'
 import Layout from '../../components/Layout'
 import api from '../../utils/api'
-import { AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  CircularProgress,
+  IconButton,
+  Chip,
+  Fade,
+  Grow,
+  alpha,
+  Tooltip,
+} from '@mui/material'
+import {
+  CheckCircle as CheckCircleIcon,
+  AccessTime as ClockIcon,
+  Warning as AlertCircleIcon,
+  Cancel as XCircleIcon,
+  Refresh as RefreshIcon,
+} from '@mui/icons-material'
+import { styled } from '@mui/material/styles'
+
+const GradientCard = styled(Card)(({ theme, gradient }) => ({
+  background: gradient || 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+  color: 'white',
+  borderRadius: 20,
+  transition: 'all 0.3s ease',
+  position: 'relative',
+  overflow: 'hidden',
+  '&:hover': {
+    transform: 'translateY(-4px)',
+    boxShadow: theme.shadows[12],
+  },
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: '150px',
+    height: '150px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: '50%',
+    transform: 'translate(30%, -30%)',
+  },
+}))
+
+const AcknowledgmentCard = styled(Card)(({ theme, status }) => {
+  const colors = {
+    overdue: {
+      border: theme.palette.error.main,
+      bg: alpha(theme.palette.error.main, 0.05),
+    },
+    acknowledged: {
+      border: theme.palette.success.main,
+      bg: alpha(theme.palette.success.main, 0.05),
+    },
+    pending: {
+      border: theme.palette.warning.main,
+      bg: alpha(theme.palette.warning.main, 0.05),
+    },
+  }
+  const color = colors[status] || colors.pending
+  return {
+    borderRadius: 12,
+    border: `2px solid ${color.border}`,
+    backgroundColor: color.bg,
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      transform: 'translateX(4px)',
+      boxShadow: theme.shadows[4],
+    },
+  }
+})
 
 const AdminAcknowledgments = () => {
   const [data, setData] = useState({ pending: [], overdue: [], acknowledged: [], total: 0 })
@@ -32,225 +105,305 @@ const AdminAcknowledgments = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
-        </div>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+          <CircularProgress size={60} thickness={4} />
+        </Box>
       </Layout>
     )
   }
 
+  const stats = [
+    {
+      title: 'Acknowledged',
+      value: data.acknowledged?.length || 0,
+      icon: CheckCircleIcon,
+      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', // Green
+    },
+    {
+      title: 'Pending',
+      value: data.pending?.length || 0,
+      icon: ClockIcon,
+      gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', // Orange
+    },
+    {
+      title: 'Overdue',
+      value: data.overdue?.length || 0,
+      icon: AlertCircleIcon,
+      gradient: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', // Red
+    },
+    {
+      title: 'Total',
+      value: data.total,
+      icon: CheckCircleIcon,
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Aqua
+    },
+  ]
+
   return (
     <Layout>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Pre-Exam Acknowledgments</h1>
-          <button onClick={fetchAcknowledgments} className="btn-secondary">
-            Refresh
-          </button>
-        </div>
+      <Fade in timeout={600}>
+        <Box>
+          {/* Header */}
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+            <Box>
+              <Typography
+                variant="h4"
+                fontWeight={700}
+                gutterBottom
+                sx={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                Pre-Exam Acknowledgments
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Monitor faculty acknowledgment status
+              </Typography>
+            </Box>
+            <Tooltip title="Refresh">
+              <IconButton
+                onClick={fetchAcknowledgments}
+                sx={{
+                  bgcolor: alpha('#667eea', 0.1),
+                  '&:hover': {
+                    bgcolor: alpha('#667eea', 0.2),
+                    transform: 'rotate(180deg)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                <RefreshIcon sx={{ color: '#667eea' }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
 
-        {/* Filters */}
-        <div className="card p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Campus</label>
-              <input
-                type="text"
-                value={filters.campus}
-                onChange={(e) => setFilters({ ...filters, campus: e.target.value })}
-                className="input-field"
-                placeholder="Filter by campus"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-              <input
-                type="text"
-                value={filters.department}
-                onChange={(e) => setFilters({ ...filters, department: e.target.value })}
-                className="input-field"
-                placeholder="Filter by department"
-              />
-            </div>
-          </div>
-        </div>
+          {/* Filters */}
+          <Card sx={{ mb: 3, borderRadius: 3 }}>
+            <CardContent>
+              <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
+                <TextField
+                  fullWidth
+                  label="Campus"
+                  value={filters.campus}
+                  onChange={(e) => setFilters({ ...filters, campus: e.target.value })}
+                  placeholder="Filter by campus"
+                  size="small"
+                />
+                <TextField
+                  fullWidth
+                  label="Department"
+                  value={filters.department}
+                  onChange={(e) => setFilters({ ...filters, department: e.target.value })}
+                  placeholder="Filter by department"
+                  size="small"
+                />
+              </Box>
+            </CardContent>
+          </Card>
 
-        {/* Statistics */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Acknowledged</p>
-                <p className="text-2xl font-bold text-green-600">{data.acknowledged?.length || 0}</p>
-              </div>
-              <CheckCircle className="w-8 h-8 text-green-500" />
-            </div>
-          </div>
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-gray-900">{data.pending?.length || 0}</p>
-              </div>
-              <Clock className="w-8 h-8 text-yellow-500" />
-            </div>
-          </div>
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Overdue</p>
-                <p className="text-2xl font-bold text-gray-900">{data.overdue?.length || 0}</p>
-              </div>
-              <AlertCircle className="w-8 h-8 text-red-500" />
-            </div>
-          </div>
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total</p>
-                <p className="text-2xl font-bold text-gray-900">{data.total}</p>
-              </div>
-              <CheckCircle className="w-8 h-8 text-blue-500" />
-            </div>
-          </div>
-        </div>
+          {/* Statistics */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+              gap: 3,
+              mb: 4,
+            }}
+          >
+            {stats.map((stat, index) => (
+              <Grow in timeout={700 + index * 100} key={index}>
+                <GradientCard gradient={stat.gradient}>
+                  <CardContent sx={{ position: 'relative', zIndex: 1 }}>
+                    <Box display="flex" alignItems="center" justifyContent="space-between">
+                      <Box>
+                        <Typography variant="body2" sx={{ opacity: 0.9, mb: 1 }}>
+                          {stat.title}
+                        </Typography>
+                        <Typography variant="h3" fontWeight={700}>
+                          {stat.value}
+                        </Typography>
+                      </Box>
+                      <stat.icon sx={{ fontSize: 48, opacity: 0.3 }} />
+                    </Box>
+                  </CardContent>
+                </GradientCard>
+              </Grow>
+            ))}
+          </Box>
 
-        {/* Overdue Acknowledgments */}
-        {data.overdue?.length > 0 && (
-          <div className="card">
-            <div className="flex items-center space-x-2 mb-4">
-              <XCircle className="w-5 h-5 text-red-500" />
-              <h2 className="text-xl font-bold text-gray-900">Overdue Acknowledgments</h2>
-            </div>
-            <div className="space-y-3">
-              {data.overdue?.map((allocation) => (
-                <div
-                  key={allocation._id}
-                  className="p-4 border border-red-200 bg-red-50 rounded-lg"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">
-                        {allocation.exam?.examType ?
-                          allocation.exam.examType.charAt(0).toUpperCase() + allocation.exam.examType.slice(1).replace('-', ' ') :
-                          'N/A'
-                        } - {allocation.faculty?.name || 'N/A'}
-                      </p>
-                      <p className="text-sm text-gray-600">{allocation.exam?.courseCode}</p>
-                      <div className="mt-2 text-xs text-gray-500">
-                        <p>Faculty: {allocation.faculty?.name} ({allocation.faculty?.email})</p>
-                        <p>Date: {new Date(allocation.date).toLocaleDateString()} | {allocation.startTime} - {allocation.endTime}</p>
-                        <p className="text-red-600 font-semibold">
-                          Deadline: {new Date(allocation.acknowledgmentDeadline).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                        Overdue
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Acknowledged Acknowledgments */}
-        {data.acknowledged && data.acknowledged.length > 0 && (
-          <div className="card">
-            <div className="flex items-center space-x-2 mb-4">
-              <CheckCircle className="w-5 h-5 text-green-500" />
-              <h2 className="text-xl font-bold text-gray-900">Acknowledged</h2>
-            </div>
-            <div className="space-y-3">
-              {data.acknowledged?.map((allocation) => (
-                <div
-                  key={allocation._id}
-                  className="p-4 border border-green-200 bg-green-50 rounded-lg"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">
-                        {allocation.exam?.examType ?
-                          allocation.exam.examType.charAt(0).toUpperCase() + allocation.exam.examType.slice(1).replace('-', ' ') :
-                          'N/A'
-                        } - {allocation.faculty?.name || 'N/A'}
-                      </p>
-                      <p className="text-sm text-gray-600">{allocation.exam?.courseCode}</p>
-                      <div className="mt-2 text-xs text-gray-500">
-                        <p>Faculty: {allocation.faculty?.name} ({allocation.faculty?.email})</p>
-                        <p>Date: {new Date(allocation.date).toLocaleDateString()} | {allocation.startTime} - {allocation.endTime}</p>
-                        {allocation.preExamAcknowledgment?.acknowledgedAt && (
-                          <p className="text-green-600 font-semibold">
-                            Acknowledged: {new Date(allocation.preExamAcknowledgment.acknowledgedAt).toLocaleString()}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                        ✓ Acknowledged
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Pending Acknowledgments */}
-        <div className="card">
-          <div className="flex items-center space-x-2 mb-4">
-            <Clock className="w-5 h-5 text-yellow-500" />
-            <h2 className="text-xl font-bold text-gray-900">Pending Acknowledgments</h2>
-          </div>
-          {data.pending?.length === 0 ? (
-            <div className="text-center py-12">
-              <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
-              <p className="text-gray-600">All acknowledgments received!</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {data.pending?.map((allocation) => (
-                <div
-                  key={allocation._id}
-                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">
-                        {allocation.exam?.examType ?
-                          allocation.exam.examType.charAt(0).toUpperCase() + allocation.exam.examType.slice(1).replace('-', ' ') :
-                          'N/A'
-                        } - {allocation.faculty?.name || 'N/A'}
-                      </p>
-                      <p className="text-sm text-gray-600">{allocation.exam?.courseCode}</p>
-                      <div className="mt-2 text-xs text-gray-500">
-                        <p>Faculty: {allocation.faculty?.name} ({allocation.faculty?.email})</p>
-                        <p>Date: {new Date(allocation.date).toLocaleDateString()} | {allocation.startTime} - {allocation.endTime}</p>
-                        <p className="text-yellow-600 font-semibold">
-                          Deadline: {new Date(allocation.acknowledgmentDeadline).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                        Pending
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* Overdue Acknowledgments */}
+          {data.overdue?.length > 0 && (
+            <Grow in timeout={900}>
+              <Card sx={{ mb: 3, borderRadius: 3 }}>
+                <CardContent>
+                  <Box display="flex" alignItems="center" gap={1} mb={3}>
+                    <XCircleIcon sx={{ color: 'error.main' }} />
+                    <Typography variant="h6" fontWeight={700}>
+                      Overdue Acknowledgments
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {data.overdue?.map((allocation, index) => (
+                      <Grow in timeout={1000 + index * 50} key={allocation._id}>
+                        <AcknowledgmentCard status="overdue">
+                          <CardContent>
+                            <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={2}>
+                              <Box flex={1}>
+                                <Typography variant="body1" fontWeight={600} gutterBottom>
+                                  {allocation.exam?.examType
+                                    ? allocation.exam.examType.charAt(0).toUpperCase() +
+                                    allocation.exam.examType.slice(1).replace('-', ' ')
+                                    : 'N/A'}{' '}
+                                  - {allocation.faculty?.name || 'N/A'}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary" gutterBottom>
+                                  {allocation.exam?.courseCode}
+                                </Typography>
+                                <Box mt={1}>
+                                  <Typography variant="caption" color="text.secondary" display="block">
+                                    Faculty: {allocation.faculty?.name} ({allocation.faculty?.email})
+                                  </Typography>
+                                  <Typography variant="caption" color="text.secondary" display="block">
+                                    Date: {new Date(allocation.date).toLocaleDateString()} | {allocation.startTime} -{' '}
+                                    {allocation.endTime}
+                                  </Typography>
+                                  <Typography variant="caption" color="error.main" fontWeight={600} display="block">
+                                    Deadline: {new Date(allocation.acknowledgmentDeadline).toLocaleString()}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                              <Chip label="Overdue" color="error" size="small" />
+                            </Box>
+                          </CardContent>
+                        </AcknowledgmentCard>
+                      </Grow>
+                    ))}
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grow>
           )}
-        </div>
-      </div>
+
+          {/* Acknowledged Acknowledgments */}
+          {data.acknowledged && data.acknowledged.length > 0 && (
+            <Grow in timeout={1000}>
+              <Card sx={{ mb: 3, borderRadius: 3 }}>
+                <CardContent>
+                  <Box display="flex" alignItems="center" gap={1} mb={3}>
+                    <CheckCircleIcon sx={{ color: 'success.main' }} />
+                    <Typography variant="h6" fontWeight={700}>
+                      Acknowledged
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {data.acknowledged?.map((allocation, index) => (
+                      <Grow in timeout={1100 + index * 50} key={allocation._id}>
+                        <AcknowledgmentCard status="acknowledged">
+                          <CardContent>
+                            <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={2}>
+                              <Box flex={1}>
+                                <Typography variant="body1" fontWeight={600} gutterBottom>
+                                  {allocation.exam?.examType
+                                    ? allocation.exam.examType.charAt(0).toUpperCase() +
+                                    allocation.exam.examType.slice(1).replace('-', ' ')
+                                    : 'N/A'}{' '}
+                                  - {allocation.faculty?.name || 'N/A'}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary" gutterBottom>
+                                  {allocation.exam?.courseCode}
+                                </Typography>
+                                <Box mt={1}>
+                                  <Typography variant="caption" color="text.secondary" display="block">
+                                    Faculty: {allocation.faculty?.name} ({allocation.faculty?.email})
+                                  </Typography>
+                                  <Typography variant="caption" color="text.secondary" display="block">
+                                    Date: {new Date(allocation.date).toLocaleDateString()} | {allocation.startTime} -{' '}
+                                    {allocation.endTime}
+                                  </Typography>
+                                  {allocation.preExamAcknowledgment?.acknowledgedAt && (
+                                    <Typography variant="caption" color="success.main" fontWeight={600} display="block">
+                                      Acknowledged: {new Date(allocation.preExamAcknowledgment.acknowledgedAt).toLocaleString()}
+                                    </Typography>
+                                  )}
+                                </Box>
+                              </Box>
+                              <Chip label="✓ Acknowledged" color="success" size="small" />
+                            </Box>
+                          </CardContent>
+                        </AcknowledgmentCard>
+                      </Grow>
+                    ))}
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grow>
+          )}
+
+          {/* Pending Acknowledgments */}
+          <Grow in timeout={1200}>
+            <Card sx={{ borderRadius: 3 }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" gap={1} mb={3}>
+                  <ClockIcon sx={{ color: 'warning.main' }} />
+                  <Typography variant="h6" fontWeight={700}>
+                    Pending Acknowledgments
+                  </Typography>
+                </Box>
+                {data.pending?.length === 0 ? (
+                  <Box textAlign="center" py={8}>
+                    <CheckCircleIcon sx={{ fontSize: 64, color: 'success.light', mb: 2 }} />
+                    <Typography variant="body1" color="text.secondary">
+                      All acknowledgments received!
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {data.pending?.map((allocation, index) => (
+                      <Grow in timeout={1300 + index * 50} key={allocation._id}>
+                        <AcknowledgmentCard status="pending">
+                          <CardContent>
+                            <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={2}>
+                              <Box flex={1}>
+                                <Typography variant="body1" fontWeight={600} gutterBottom>
+                                  {allocation.exam?.examType
+                                    ? allocation.exam.examType.charAt(0).toUpperCase() +
+                                    allocation.exam.examType.slice(1).replace('-', ' ')
+                                    : 'N/A'}{' '}
+                                  - {allocation.faculty?.name || 'N/A'}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary" gutterBottom>
+                                  {allocation.exam?.courseCode}
+                                </Typography>
+                                <Box mt={1}>
+                                  <Typography variant="caption" color="text.secondary" display="block">
+                                    Faculty: {allocation.faculty?.name} ({allocation.faculty?.email})
+                                  </Typography>
+                                  <Typography variant="caption" color="text.secondary" display="block">
+                                    Date: {new Date(allocation.date).toLocaleDateString()} | {allocation.startTime} -{' '}
+                                    {allocation.endTime}
+                                  </Typography>
+                                  <Typography variant="caption" color="warning.main" fontWeight={600} display="block">
+                                    Deadline: {new Date(allocation.acknowledgmentDeadline).toLocaleString()}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                              <Chip label="Pending" color="warning" size="small" />
+                            </Box>
+                          </CardContent>
+                        </AcknowledgmentCard>
+                      </Grow>
+                    ))}
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grow>
+        </Box>
+      </Fade>
     </Layout>
   )
 }
 
 export default AdminAcknowledgments
-

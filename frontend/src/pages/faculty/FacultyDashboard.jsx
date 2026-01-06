@@ -172,26 +172,26 @@ const FacultyDashboard = () => {
       title: 'Total Duties',
       value: dashboard?.statistics?.totalDuties || 0,
       icon: AssignmentIcon,
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Aqua blue instead of pink
     },
     {
       title: 'Total Hours',
       value: dashboard?.statistics?.totalHours || 0,
       icon: ClockIcon,
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', // Green-cyan
     },
     {
       title: 'Pending Notifications',
       value: dashboard?.statistics?.pendingNotifications || 0,
       icon: BellIcon,
-      gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+      gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', // Orange
       highlight: (dashboard?.statistics?.pendingNotifications || 0) > 0,
     },
     {
       title: "Today's Duties",
       value: dashboard?.statistics?.todayDuties || 0,
       icon: TodayIcon,
-      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // Purple
     },
   ]
 
@@ -206,7 +206,7 @@ const FacultyDashboard = () => {
               fontWeight={700}
               gutterBottom
               sx={{
-                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // Purple instead of pink
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',

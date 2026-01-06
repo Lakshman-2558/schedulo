@@ -332,7 +332,7 @@ const AdminCalendar = () => {
         {/* Header */}
         <Box className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-sm border border-blue-100" mb={4}>
           <Typography variant="h4" fontWeight={800} sx={{
-            background: 'linear-gradient(135deg, #1a56db 0%, #6366f1 100%)',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -581,7 +581,7 @@ const AdminCalendar = () => {
                     label={`${filteredEvents.length} Events`}
                     size="small"
                     sx={{
-                      background: 'linear-gradient(135deg, #1a56db 0%, #6366f1 100%)',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                       color: 'white',
                       fontWeight: 600,
                       px: 1.5

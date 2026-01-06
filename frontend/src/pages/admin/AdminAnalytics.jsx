@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
+const COLORS = ['#4facfe', '#43e97b', '#fa709a', '#EF4444', '#a78bfa', '#EC4899'] // Aqua, Green, Orange, Red, Purple, Pink
 
 const GlassCard = ({ children, className = '' }) => (
   <div className={`bg-white/80 backdrop-blur-xl border border-white/50 shadow-lg rounded-2xl p-6 transition-all hover:shadow-xl hover:bg-white/90 ${className}`}>
@@ -121,7 +121,7 @@ const AdminAnalytics = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-600">
+            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-500">
               Analytics Dashboard
             </h1>
             <p className="text-gray-500 mt-1">Real-time insights and allocation metrics</p>
@@ -169,21 +169,21 @@ const AdminAnalytics = () => {
             title="Total Exams"
             value={analytics.overview?.totalExams || 0}
             icon={Calendar}
-            color="bg-blue-500"
+            color="bg-cyan-500"
             subValue="Scheduled in period"
           />
           <StatCard
             title="Allocations"
             value={analytics.overview?.totalAllocations || 0}
             icon={Users}
-            color="bg-green-500"
+            color="bg-emerald-500"
             subValue={`${analytics.overview?.allocationCoverage || 0}% Coverage`}
           />
           <StatCard
             title="Faculty Members"
             value={analytics.overview?.totalFaculty || 0}
             icon={GraduationCap}
-            color="bg-purple-500"
+            color="bg-violet-500"
             subValue="Active staff"
           />
           <StatCard
@@ -202,7 +202,7 @@ const AdminAnalytics = () => {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-gray-800">Allocation Trends</h2>
               <div className="flex gap-2 text-sm">
-                <span className="flex items-center gap-1 text-primary-600 bg-primary-50 px-2 py-1 rounded-md">
+                <span className="flex items-center gap-1 text-cyan-600 bg-cyan-50 px-2 py-1 rounded-md">
                   <TrendingUp className="w-4 h-4" /> Daily Active
                 </span>
               </div>
@@ -211,8 +211,8 @@ const AdminAnalytics = () => {
               <AreaChart data={analytics.timeAnalytics?.dailyTrend || []}>
                 <defs>
                   <linearGradient id="colorAlloc" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#4facfe" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#00f2fe" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
@@ -234,7 +234,7 @@ const AdminAnalytics = () => {
                 <Area
                   type="monotone"
                   dataKey="count"
-                  stroke="#3B82F6"
+                  stroke="#4facfe"
                   strokeWidth={3}
                   fillOpacity={1}
                   fill="url(#colorAlloc)"
@@ -284,7 +284,7 @@ const AdminAnalytics = () => {
                     <p className="text-xs text-gray-500">{faculty.department}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-primary-600">{faculty.totalDuties}</p>
+                    <p className="font-bold text-cyan-600">{faculty.totalDuties}</p>
                     <p className="text-xs text-gray-400">Duties</p>
                   </div>
                 </div>
@@ -301,7 +301,7 @@ const AdminAnalytics = () => {
                 <XAxis type="number" hide />
                 <YAxis dataKey="department" type="category" width={100} tick={{ fontSize: 11 }} />
                 <Tooltip cursor={{ fill: 'transparent' }} />
-                <Bar dataKey="totalAllocations" fill="#8B5CF6" radius={[0, 4, 4, 0]} barSize={20} />
+                <Bar dataKey="totalAllocations" fill="#4facfe" radius={[0, 8, 8, 0]} barSize={24} />
               </BarChart>
             </ResponsiveContainer>
           </GlassCard>

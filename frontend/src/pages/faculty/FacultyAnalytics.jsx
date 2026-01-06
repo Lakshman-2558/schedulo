@@ -107,19 +107,19 @@ const FacultyAnalytics = () => {
       title: 'Total Duties',
       value: analytics.overview?.totalDuties || 0,
       icon: CalendarIcon,
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Aqua blue
     },
     {
       title: 'Total Hours',
       value: analytics.overview?.totalHours || 0,
       icon: ClockIcon,
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', // Green-cyan
     },
     {
       title: 'Avg Hours/Duty',
       value: analytics.overview?.averageHoursPerDuty || 0,
       icon: TrendingUpIcon,
-      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // Purple
     },
     {
       title: 'Upcoming',

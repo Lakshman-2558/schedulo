@@ -77,14 +77,14 @@ const LogoIcon = styled(Box)(({ theme }) => ({
   width: 40,
   height: 40,
   borderRadius: 12,
-  background: 'linear-gradient(135deg, #1a56db 0%, #6366f1 100%)',
+  background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Aqua blue
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   color: 'white',
   fontWeight: 700,
   fontSize: '1.25rem',
-  boxShadow: '0 4px 12px rgba(26, 86, 219, 0.3)',
+  boxShadow: '0 4px 12px rgba(79, 172, 254, 0.3)',
   transition: 'transform 0.3s ease',
   '&:hover': {
     transform: 'scale(1.1)',
@@ -99,20 +99,20 @@ const NavItemButton = styled(ListItemButton, {
   minHeight: 44,
   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   ...(active && {
-    background: 'linear-gradient(135deg, #1a56db 0%, #1e40af 100%)',
+    background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Aqua blue
     color: 'white',
-    boxShadow: '0 4px 12px rgba(26, 86, 219, 0.3)',
+    boxShadow: '0 4px 12px rgba(79, 172, 254, 0.3)',
     '&:hover': {
-      background: 'linear-gradient(135deg, #2563eb 0%, #1a56db 100%)',
+      background: 'linear-gradient(135deg, #3b9be8 0%, #00d9e8 100%)',
       transform: 'translateX(4px)',
     },
   }),
   ...(!active && {
     color: theme.palette.text.primary,
     '&:hover': {
-      backgroundColor: 'rgba(26, 86, 219, 0.08)',
+      backgroundColor: 'rgba(79, 172, 254, 0.08)',
       transform: 'translateX(4px)',
-      color: theme.palette.primary.main,
+      color: '#4facfe',
     },
   }),
 }))
@@ -130,11 +130,11 @@ const GroupHeaderButton = styled(Button, {
   fontWeight: 600,
   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   ...(active && {
-    backgroundColor: 'rgba(26, 86, 219, 0.1)',
-    color: theme.palette.primary.main,
+    backgroundColor: 'rgba(79, 172, 254, 0.1)',
+    color: '#4facfe',
   }),
   '&:hover': {
-    backgroundColor: 'rgba(26, 86, 219, 0.12)',
+    backgroundColor: 'rgba(79, 172, 254, 0.12)',
     transform: 'translateX(2px)',
   },
 }))
@@ -263,9 +263,9 @@ const Layout = ({ children }) => {
           src="/schedulo-logo.png"
           alt="Schedulo Logo"
           sx={{
-            width: 40,
-            height: 40,
-            borderRadius: 2,
+            width: 64,
+            height: 64,
+            borderRadius: 2.5,
             objectFit: 'cover',
             transition: 'transform 0.3s ease',
             '&:hover': {
@@ -277,7 +277,7 @@ const Layout = ({ children }) => {
           variant="h6"
           sx={{
             fontWeight: 800,
-            background: 'linear-gradient(135deg, #1a56db 0%, #6366f1 100%)',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // Purple
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -414,7 +414,7 @@ const Layout = ({ children }) => {
             borderRadius: 3,
             transition: 'all 0.2s ease',
             '&:hover': {
-              bgcolor: 'rgba(26, 86, 219, 0.04)',
+              bgcolor: 'rgba(79, 172, 254, 0.04)',
               transform: 'translateY(-2px)',
               boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
             }
@@ -425,9 +425,9 @@ const Layout = ({ children }) => {
               width: 36,
               height: 36,
               bgcolor: 'primary.main',
-              background: 'linear-gradient(135deg, #1a56db 0%, #6366f1 100%)',
+              background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Aqua blue
               fontWeight: 700,
-              boxShadow: '0 4px 12px rgba(26, 86, 219, 0.25)',
+              boxShadow: '0 4px 12px rgba(79, 172, 254, 0.25)',
               fontSize: '1rem'
             }}
           >
@@ -446,9 +446,9 @@ const Layout = ({ children }) => {
                 fontSize: '0.65rem',
                 fontWeight: 700,
                 width: 'fit-content',
-                backgroundColor: 'rgba(26, 86, 219, 0.08)',
-                color: 'primary.main',
-                border: '1px solid rgba(26, 86, 219, 0.1)'
+                backgroundColor: 'rgba(79, 172, 254, 0.08)',
+                color: '#4facfe',
+                border: '1px solid rgba(79, 172, 254, 0.1)'
               }}
             />
           </Box>
@@ -489,7 +489,7 @@ const Layout = ({ children }) => {
         >
           <Box sx={{
             height: 120,
-            background: 'linear-gradient(135deg, #1a56db 0%, #6366f1 100%)',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // Purple
             position: 'relative',
             mb: 6
           }}>
@@ -507,7 +507,7 @@ const Layout = ({ children }) => {
                 width: 80,
                 height: 80,
                 bgcolor: 'primary.main',
-                background: 'linear-gradient(135deg, #1a56db 0%, #6366f1 100%)',
+                background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Aqua blue
                 fontSize: '2.5rem',
                 fontWeight: 800
               }}>
@@ -523,8 +523,8 @@ const Layout = ({ children }) => {
               <Chip
                 label={user?.role?.toUpperCase() || 'USER'}
                 sx={{
-                  bgcolor: 'rgba(26, 86, 219, 0.08)',
-                  color: 'primary.main',
+                  bgcolor: 'rgba(79, 172, 254, 0.08)',
+                  color: '#4facfe',
                   fontWeight: 700,
                   fontSize: '0.75rem',
                   height: 24
@@ -534,7 +534,7 @@ const Layout = ({ children }) => {
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
               <Box display="flex" alignItems="center" gap={2.5}>
-                <Box sx={{ p: 1.25, borderRadius: 2.5, bgcolor: 'rgba(26, 86, 219, 0.08)', color: 'primary.main', display: 'flex' }}>
+                <Box sx={{ p: 1.25, borderRadius: 2.5, bgcolor: 'rgba(79, 172, 254, 0.08)', color: '#4facfe', display: 'flex' }}>
                   <BadgeIcon />
                 </Box>
                 <Box>
@@ -543,7 +543,7 @@ const Layout = ({ children }) => {
                 </Box>
               </Box>
               <Box display="flex" alignItems="center" gap={2.5}>
-                <Box sx={{ p: 1.25, borderRadius: 2.5, bgcolor: 'rgba(26, 86, 219, 0.08)', color: 'primary.main', display: 'flex' }}>
+                <Box sx={{ p: 1.25, borderRadius: 2.5, bgcolor: 'rgba(79, 172, 254, 0.08)', color: '#4facfe', display: 'flex' }}>
                   <EmailIcon />
                 </Box>
                 <Box>
@@ -552,7 +552,7 @@ const Layout = ({ children }) => {
                 </Box>
               </Box>
               <Box display="flex" alignItems="center" gap={2.5}>
-                <Box sx={{ p: 1.25, borderRadius: 2.5, bgcolor: 'rgba(26, 86, 219, 0.08)', color: 'primary.main', display: 'flex' }}>
+                <Box sx={{ p: 1.25, borderRadius: 2.5, bgcolor: 'rgba(79, 172, 254, 0.08)', color: '#4facfe', display: 'flex' }}>
                   <BusinessIcon />
                 </Box>
                 <Box>
@@ -612,9 +612,9 @@ const Layout = ({ children }) => {
                 src="/schedulo-logo.png"
                 alt="Schedulo Logo"
                 sx={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 1.5,
+                  width: 48,
+                  height: 48,
+                  borderRadius: 2,
                   objectFit: 'cover',
                 }}
               />
@@ -622,7 +622,7 @@ const Layout = ({ children }) => {
                 variant="h6"
                 sx={{
                   fontWeight: 800,
-                  background: 'linear-gradient(135deg, #1a56db 0%, #6366f1 100%)',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // Purple
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',

@@ -47,7 +47,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }))
 
 const StyledHeaderCell = styled(TableCell)(({ theme }) => ({
-  background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important',
+  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important',
   color: 'white !important',
   fontWeight: '700 !important',
   fontSize: '0.875rem !important',
@@ -98,7 +98,7 @@ const WorkloadChip = styled(Chip)(({ theme, level }) => {
 })
 
 const StatsCard = styled(Card)(({ theme }) => ({
-  background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
   color: 'white',
   borderRadius: 16,
   transition: 'all 0.3s ease',
@@ -191,7 +191,7 @@ const AdminFaculty = () => {
                   fontWeight={700}
                   gutterBottom
                   sx={{
-                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
@@ -207,11 +207,11 @@ const AdminFaculty = () => {
                 <IconButton
                   onClick={fetchFaculty}
                   sx={{
-                    bgcolor: alpha('#1a56db', 0.1),
-                    '&:hover': { bgcolor: alpha('#1a56db', 0.2) },
+                    bgcolor: alpha('#667eea', 0.1),
+                    '&:hover': { bgcolor: alpha('#667eea', 0.2) },
                   }}
                 >
-                  <RefreshIcon />
+                  <RefreshIcon sx={{ color: '#667eea' }} />
                 </IconButton>
               </Tooltip>
             </Box>
@@ -245,7 +245,7 @@ const AdminFaculty = () => {
             </Grow>
 
             <Grow in timeout={700}>
-              <StatsCard sx={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
+              <StatsCard sx={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' }}>
                 <CardContent>
                   <Box display="flex" alignItems="center" justifyContent="space-between">
                     <Box>
@@ -263,7 +263,7 @@ const AdminFaculty = () => {
             </Grow>
 
             <Grow in timeout={800}>
-              <StatsCard sx={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' }}>
+              <StatsCard sx={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }}>
                 <CardContent>
                   <Box display="flex" alignItems="center" justifyContent="space-between">
                     <Box>
@@ -394,8 +394,8 @@ const AdminFaculty = () => {
                               <Box display="flex" alignItems="center" gap={2}>
                                 <Avatar
                                   sx={{
-                                    bgcolor: alpha('#1a56db', 0.1),
-                                    color: '#1a56db',
+                                    bgcolor: alpha('#667eea', 0.1),
+                                    color: '#667eea',
                                     fontWeight: 700,
                                   }}
                                 >

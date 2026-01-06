@@ -43,10 +43,10 @@ import { styled } from '@mui/material/styles'
 
 const StyledTabs = styled(Tabs)(({ theme }) => ({
   minHeight: 48,
-  '& .MuiTabs-indicator': {
+  '&.MuiTabs-indicator': {
     height: 4,
     borderRadius: '4px 4px 0 0',
-    background: 'linear-gradient(90deg, #1a56db 0%, #6366f1 100%)',
+    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
   },
 }))
 
@@ -72,7 +72,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }))
 
 const StyledHeaderCell = styled(TableCell)(({ theme }) => ({
-  background: 'linear-gradient(135deg, #1a56db 0%, #1e40af 100%) !important',
+  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important',
   color: 'white !important',
   fontWeight: '700 !important',
   fontSize: '0.875rem !important',
@@ -301,7 +301,7 @@ const AdminSchedule = () => {
               fontWeight={700}
               gutterBottom
               sx={{
-                background: 'linear-gradient(135deg, #1a56db 0%, #6366f1 100%)',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',

@@ -7,22 +7,17 @@ import {
   Card,
   CardContent,
   Typography,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Chip,
   CircularProgress,
   Fade,
   Grow,
-  useTheme,
+  alpha,
 } from '@mui/material'
 import {
   CalendarToday as CalendarIcon,
@@ -35,69 +30,39 @@ import {
 import { styled } from '@mui/material/styles'
 import { Link } from 'react-router-dom'
 
-const StatCard = styled(Card, {
-  shouldForwardProp: (prop) => prop !== 'gradient',
-})(({ theme, gradient }) => ({
+const GradientCard = styled(Card)(({ theme, gradient }) => ({
+  background: gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  color: 'white',
+  borderRadius: 20,
+  transition: 'all 0.3s ease',
   position: 'relative',
   overflow: 'hidden',
-  height: '100%',
-  borderRadius: 16,
-  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-  border: '1px solid rgba(226, 232, 240, 0.8)',
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  cursor: 'pointer',
   textDecoration: 'none',
   display: 'block',
   '&:hover': {
     transform: 'translateY(-8px)',
-    boxShadow: '0 12px 32px rgba(0, 0, 0, 0.12)',
-    borderColor: theme.palette.primary.light,
+    boxShadow: theme.shadows[12],
   },
   '&::before': {
     content: '""',
     position: 'absolute',
     top: 0,
     right: 0,
-    width: '120px',
-    height: '120px',
+    width: '150px',
+    height: '150px',
+    background: 'rgba(255, 255, 255, 0.1)',
     borderRadius: '50%',
-    background: gradient || 'linear-gradient(135deg, rgba(26, 86, 219, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%)',
-    filter: 'blur(40px)',
     transform: 'translate(30%, -30%)',
-    transition: 'all 0.3s ease',
-  },
-  '&:hover::before': {
-    width: '160px',
-    height: '160px',
-    opacity: 0.8,
-  },
-}))
-
-const IconContainer = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'bgcolor',
-})(({ theme, bgcolor }) => ({
-  width: 56,
-  height: 56,
-  borderRadius: 14,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  background: bgcolor || 'linear-gradient(135deg, #1a56db 0%, #1e40af 100%)',
-  boxShadow: '0 4px 12px rgba(26, 86, 219, 0.3)',
-  transition: 'all 0.3s ease',
-  [theme.breakpoints.down('sm')]: {
-    width: 36,
-    height: 36,
   },
 }))
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
+  borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
   padding: theme.spacing(2),
 }))
 
 const StyledHeaderCell = styled(TableCell)(({ theme }) => ({
-  background: 'linear-gradient(135deg, #1a56db 0%, #1e40af 100%) !important',
+  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important',
   color: 'white !important',
   fontWeight: '700 !important',
   fontSize: '0.875rem !important',
@@ -107,25 +72,17 @@ const StyledHeaderCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 'none !important',
 }))
 
-const StyledTableHead = styled(TableHead)(({ theme }) => ({}))
-
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [filters, setFilters] = useState({ campus: '', department: '' })
-  const theme = useTheme()
 
   useEffect(() => {
     fetchDashboard()
-  }, [filters])
+  }, [])
 
   const fetchDashboard = async () => {
     try {
-      const params = new URLSearchParams()
-      if (filters.campus) params.append('campus', filters.campus)
-      if (filters.department) params.append('department', filters.department)
-
-      const response = await api.get(`/admin/dashboard?${params}`)
+      const response = await api.get('/admin/dashboard')
       setStats(response.data.data)
     } catch (error) {
       console.error('Error fetching dashboard:', error)
@@ -149,48 +106,42 @@ const AdminDashboard = () => {
       title: 'Total Exams',
       value: stats?.statistics?.totalExams || 0,
       icon: DescriptionIcon,
-      gradient: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%)',
-      iconBg: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Aqua blue
       link: '/admin/schedule',
     },
     {
       title: 'Scheduled',
       value: stats?.statistics?.scheduledExams || 0,
       icon: CalendarIcon,
-      gradient: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(251, 146, 60, 0.15) 100%)',
-      iconBg: 'linear-gradient(135deg, #f59e0b 0%, #fb923c 100%)',
+      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', // Green-cyan
       link: '/admin/schedule',
     },
     {
       title: 'Allocated',
       value: stats?.statistics?.allocatedExams || 0,
       icon: ClockIcon,
-      gradient: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%)',
-      iconBg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // Purple
       link: '/admin/schedule',
     },
     {
       title: 'Total Faculty',
       value: stats?.statistics?.totalFaculty || 0,
       icon: PeopleIcon,
-      gradient: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%)',
-      iconBg: 'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
+      gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', // Pastel
       link: '/admin/manage',
     },
     {
       title: 'Active Conflicts',
       value: stats?.statistics?.activeConflicts || 0,
       icon: WarningIcon,
-      gradient: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%)',
-      iconBg: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+      gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', // Orange
       link: '/admin/schedule',
     },
     {
       title: 'Classrooms',
       value: stats?.statistics?.totalClassrooms || 0,
       icon: BusinessIcon,
-      gradient: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(124, 58, 237, 0.15) 100%)',
-      iconBg: 'linear-gradient(135deg, #6366f1 0%, #7c3aed 100%)',
+      gradient: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)', // Dark blue
       link: '/admin/schedule',
     },
   ]
@@ -202,11 +153,11 @@ const AdminDashboard = () => {
           {/* Header */}
           <Box mb={4}>
             <Typography
-              variant="h5"
+              variant="h4"
               fontWeight={700}
               gutterBottom
               sx={{
-                background: 'linear-gradient(135deg, #1a56db 0%, #6366f1 100%)',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -219,111 +170,70 @@ const AdminDashboard = () => {
             </Typography>
           </Box>
 
-          {/* Filters Removed */}{' '}
-
           {/* Statistics Grid */}
-          <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+              gap: 3,
+              mb: 4,
+            }}
+          >
             {statCards.map((stat, index) => (
-              <Grid
-                key={index}
-                sx={{
-                  flexBasis: { xs: 'calc(50% - 8px)', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' },
-                  maxWidth: { xs: 'calc(50% - 8px)', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' },
-                }}
-              >
-                <Grow in timeout={800} style={{ transitionDelay: `${index * 100}ms` }}>
-                  <StatCard component={Link} to={stat.link} gradient={stat.gradient}>
-                    <CardContent sx={{ position: 'relative', zIndex: 1, p: { xs: 1.5, sm: 3 } }}>
-                      <Box display="flex" justifyContent="space-between" alignItems="center" gap={{ xs: 1, sm: 1.5 }}>
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            fontWeight={600}
-                            gutterBottom
-                            sx={{
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              fontSize: { xs: '0.7rem', sm: '0.875rem' },
-                              mb: { xs: 0.5, sm: 1 }
-                            }}
-                          >
-                            {stat.title}
-                          </Typography>
-                          <Typography
-                            variant="h5"
-                            fontWeight={800}
-                            color="text.primary"
-                            sx={{ fontSize: { xs: '1.1rem', sm: '1.5rem' } }}
-                          >
-                            {stat.value}
-                          </Typography>
-                        </Box>
-                        <IconContainer bgcolor={stat.iconBg} sx={{ flexShrink: 0 }}>
-                          <stat.icon sx={{ color: 'white', fontSize: { xs: 18, sm: 28 } }} />
-                        </IconContainer>
+              <Grow in timeout={700 + index * 100} key={index}>
+                <GradientCard component={Link} to={stat.link} gradient={stat.gradient}>
+                  <CardContent sx={{ position: 'relative', zIndex: 1 }}>
+                    <Box display="flex" alignItems="center" justifyContent="space-between">
+                      <Box>
+                        <Typography variant="body2" sx={{ opacity: 0.9, mb: 1 }}>
+                          {stat.title}
+                        </Typography>
+                        <Typography variant="h3" fontWeight={700}>
+                          {stat.value}
+                        </Typography>
                       </Box>
-                    </CardContent>
-                  </StatCard>
-                </Grow>
-              </Grid>
+                      <stat.icon sx={{ fontSize: 48, opacity: 0.3 }} />
+                    </Box>
+                  </CardContent>
+                </GradientCard>
+              </Grow>
             ))}
-          </Grid>
+          </Box>
 
           {/* Recent Allocations */}
           <Grow in timeout={1000}>
             <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
               <CardContent>
                 <Box mb={3}>
-                  <Typography variant="h5" fontWeight={700} gutterBottom>
+                  <Typography variant="h6" fontWeight={700} gutterBottom>
                     Recent Allocations
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Latest invigilation assignments
                   </Typography>
                 </Box>
-                <TableContainer
-                  component={Paper}
-                  elevation={0}
-                  sx={{
-                    borderRadius: 2,
-                    overflow: 'auto',
-                    '&::-webkit-scrollbar': {
-                      height: 8,
-                    },
-                    '&::-webkit-scrollbar-track': {
-                      backgroundColor: 'rgba(0,0,0,0.05)',
-                      borderRadius: 4,
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      backgroundColor: 'rgba(26, 86, 219, 0.3)',
-                      borderRadius: 4,
-                      '&:hover': {
-                        backgroundColor: 'rgba(26, 86, 219, 0.5)',
-                      },
-                    },
-                  }}
-                >
-                  <Table sx={{ minWidth: 650 }}>
-                    <StyledTableHead>
+                <TableContainer>
+                  <Table>
+                    <TableHead>
                       <TableRow>
                         <StyledHeaderCell>Date</StyledHeaderCell>
                         <StyledHeaderCell>Time</StyledHeaderCell>
                         <StyledHeaderCell>Faculty</StyledHeaderCell>
                         <StyledHeaderCell>Exam</StyledHeaderCell>
-                        <StyledHeaderCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Campus</StyledHeaderCell>
+                        <StyledHeaderCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                          Campus
+                        </StyledHeaderCell>
                       </TableRow>
-                    </StyledTableHead>
+                    </TableHead>
                     <TableBody>
                       {stats?.recentAllocations?.length > 0 ? (
                         stats.recentAllocations.map((allocation) => (
                           <TableRow
                             key={allocation._id}
                             sx={{
-                              transition: 'background-color 0.2s ease',
+                              transition: 'all 0.2s ease',
                               '&:hover': {
-                                backgroundColor: 'rgba(26, 86, 219, 0.04)',
+                                backgroundColor: alpha('#667eea', 0.04),
                               },
                             }}
                           >
@@ -337,8 +247,8 @@ const AdminDashboard = () => {
                                 label={`${allocation.startTime} - ${allocation.endTime}`}
                                 size="small"
                                 sx={{
-                                  background: 'linear-gradient(135deg, rgba(26, 86, 219, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%)',
-                                  color: 'primary.main',
+                                  bgcolor: alpha('#667eea', 0.1),
+                                  color: '#667eea',
                                   fontWeight: 600,
                                 }}
                               />
