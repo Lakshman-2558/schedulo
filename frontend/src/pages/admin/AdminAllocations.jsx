@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Layout from '../../components/Layout'
-import axios from 'axios'
+import api from '../../utils/api'
 import { Download, Search, Zap, Mail, X, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -13,6 +13,8 @@ const AdminAllocations = () => {
     department: '',
     search: ''
   })
+  const [campuses, setCampuses] = useState([])
+  const [departments, setDepartments] = useState([])
   const [showAddFacultyModal, setShowAddFacultyModal] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState(null)
   const [facultySearch, setFacultySearch] = useState('')
@@ -20,8 +22,39 @@ const AdminAllocations = () => {
   const [searching, setSearching] = useState(false)
 
   useEffect(() => {
+    fetchCampuses()
+    fetchDepartments()
+  }, [])
+
+  useEffect(() => {
+    if (filters.campus) {
+      fetchDepartments()
+    }
+  }, [filters.campus])
+
+  useEffect(() => {
     fetchAllocations()
-  }, [filters])
+  }, [filters.campus, filters.department])
+
+  const fetchCampuses = async () => {
+    try {
+      const response = await api.get('/admin/campuses')
+      setCampuses(response.data.data || [])
+    } catch (error) {
+      console.error('Error fetching campuses:', error)
+    }
+  }
+
+  const fetchDepartments = async () => {
+    try {
+      const params = new URLSearchParams()
+      if (filters.campus) params.append('campus', filters.campus)
+      const response = await api.get(`/admin/departments?${params}`)
+      setDepartments(response.data.data || [])
+    } catch (error) {
+      console.error('Error fetching departments:', error)
+    }
+  }
 
   const fetchAllocations = async () => {
     try {
@@ -29,28 +62,8 @@ const AdminAllocations = () => {
       if (filters.campus) params.append('campus', filters.campus)
       if (filters.department) params.append('department', filters.department)
 
-      const response = await axios.get(`/api/admin/allocations?${params}`)
-      let filtered = response.data.data
-
-      if (filters.search) {
-        filtered = filtered.filter(alloc =>
-          alloc.faculty?.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-          alloc.exam?.examName.toLowerCase().includes(filters.search.toLowerCase()) ||
-          alloc.exam?.classroom?.roomNumber?.toLowerCase().includes(filters.search.toLowerCase()) ||
-          alloc.exam?.classroom?.block?.toLowerCase().includes(filters.search.toLowerCase())
-        )
-      }
-
-      setAllocations(filtered)
-
-      // Debug: Log blocks distribution
-      const blocksCount = {}
-      filtered.forEach(alloc => {
-        const block = alloc.classroom?.block || alloc.exam?.classroom?.block || 'Unknown'
-        blocksCount[block] = (blocksCount[block] || 0) + 1
-      })
-      console.log('📊 Allocations by block:', blocksCount)
-      console.log('📊 Total allocations:', filtered.length)
+      const response = await api.get(`/admin/allocations?${params}`)
+      setAllocations(response.data.data || [])
     } catch (error) {
       toast.error('Error fetching allocations')
     } finally {
@@ -58,13 +71,26 @@ const AdminAllocations = () => {
     }
   }
 
-  // Group allocations by classroom (same room, date, time)
+  // Client-side filtering with useMemo for instant search
+  const filteredAllocations = useMemo(() => {
+    if (!filters.search) return allocations
+
+    const searchLower = filters.search.toLowerCase()
+    return allocations.filter(alloc =>
+      alloc.faculty?.name.toLowerCase().includes(searchLower) ||
+      alloc.exam?.examName.toLowerCase().includes(searchLower) ||
+      alloc.exam?.classroom?.roomNumber?.toLowerCase().includes(searchLower) ||
+      alloc.exam?.classroom?.block?.toLowerCase().includes(searchLower)
+    )
+  }, [allocations, filters.search])
+
+  // Group allocations by classroom (same room, date, time) - now uses filtered allocations
   const groupAllocationsByRoom = () => {
     const grouped = {}
     let skippedCount = 0
     const skippedByReason = { noClassroom: 0, noRoomId: 0, stringId: 0 }
 
-    allocations.forEach(alloc => {
+    filteredAllocations.forEach(alloc => {
       // Get classroom - check allocation.classroom first (new way), then exam.classroom (old way)
       let classroom = null
 
@@ -151,7 +177,7 @@ const AdminAllocations = () => {
 
   const handleAutoAllocate = async () => {
     try {
-      const response = await axios.post('/api/admin/allocate', {})
+      const response = await api.post('/admin/allocate', {})
       toast.success(response.data.message || 'Allocation completed')
       fetchAllocations()
     } catch (error) {
@@ -165,7 +191,7 @@ const AdminAllocations = () => {
       if (filters.campus) params.append('campus', filters.campus)
       if (filters.department) params.append('department', filters.department)
 
-      const response = await axios.get(`/api/reports/pdf?${params}`, {
+      const response = await api.get(`/reports/pdf?${params}`, {
         responseType: 'blob'
       })
 
@@ -197,7 +223,7 @@ const AdminAllocations = () => {
       if (filters.campus) params.append('campus', filters.campus)
       if (filters.department) params.append('department', filters.department)
 
-      const response = await axios.get(`/api/reports/excel?${params}`, {
+      const response = await api.get(`/reports/excel?${params}`, {
         responseType: 'blob'
       })
       const url = window.URL.createObjectURL(new Blob([response.data]))
@@ -232,7 +258,7 @@ const AdminAllocations = () => {
       if (filters.department) params.append('department', filters.department)
 
       toast.loading('Sending notifications...', { id: 'notify-all' })
-      const response = await axios.post(`/api/admin/allocations/notify-all?${params}`)
+      const response = await api.post(`/admin/allocations/notify-all?${params}`)
 
       if (response.data.success) {
         toast.success(response.data.message || 'Notifications sent successfully', { id: 'notify-all' })
@@ -275,7 +301,7 @@ const AdminAllocations = () => {
       if (filters.campus) params.append('campus', filters.campus)
       if (filters.department) params.append('department', filters.department)
 
-      const response = await axios.get(`/api/admin/faculty/search?${params}`)
+      const response = await api.get(`/admin/faculty/search?${params}`)
       setSearchResults(response.data.data || [])
     } catch (error) {
       toast.error('Error searching faculty')
@@ -309,7 +335,7 @@ const AdminAllocations = () => {
     }
 
     try {
-      await axios.post(`/api/admin/allocations/${allocation._id}/add-faculty`, {
+      await api.post(`/admin/allocations/${allocation._id}/add-faculty`, {
         facultyId: facultyId
       })
       toast.success(`Added ${facultyName} to allocation`)
@@ -402,10 +428,17 @@ const AdminAllocations = () => {
             </div>
             <select
               value={filters.campus}
-              onChange={(e) => setFilters({ ...filters, campus: e.target.value })}
+              onChange={(e) => {
+                setFilters({ ...filters, campus: e.target.value, department: '' })
+              }}
               className="input-field"
             >
               <option value="">All Campuses</option>
+              {campuses.map((campus) => (
+                <option key={campus} value={campus}>
+                  {campus}
+                </option>
+              ))}
             </select>
             <select
               value={filters.department}
@@ -413,6 +446,11 @@ const AdminAllocations = () => {
               className="input-field"
             >
               <option value="">All Departments</option>
+              {departments.map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept}
+                </option>
+              ))}
             </select>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Layout from '../../components/Layout'
-import axios from 'axios'
+import api from '../../utils/api'
 import { Upload, FileText, AlertCircle, X, Edit2, Trash2, Save, XCircle, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -28,7 +28,7 @@ const AdminUploads = () => {
 
       const endpoint = `/api/upload/${type === 'exam' ? 'exam-timetable' : type === 'classroom' ? 'classrooms' : 'faculty'}/preview`
 
-      const response = await axios.post(endpoint, formData, {
+      const response = await api.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -134,7 +134,7 @@ const AdminUploads = () => {
       formData.append('file', preview.file)
 
       const endpoint = `/api/upload/${type === 'exam' ? 'exam-timetable' : type === 'classroom' ? 'classrooms' : 'faculty'}`
-      const response = await axios.post(endpoint, formData, {
+      const response = await api.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

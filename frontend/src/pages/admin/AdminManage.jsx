@@ -58,11 +58,18 @@ import {
 import { styled } from '@mui/material/styles'
 
 const StyledTabs = styled(Tabs)(({ theme }) => ({
-  minHeight: 48,
+  minHeight: 56,
+  background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
+  borderRadius: '12px 12px 0 0',
+  padding: '4px',
   '& .MuiTabs-indicator': {
     height: 4,
     borderRadius: '4px 4px 0 0',
-    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+    background: 'linear-gradient(90deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
+    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)',
+  },
+  '& .MuiTabs-flexContainer': {
+    gap: '8px',
   },
 }))
 
@@ -72,9 +79,41 @@ const StyledTab = styled(Tab)(({ theme }) => ({
   fontWeight: 600,
   fontSize: '0.9375rem',
   color: theme.palette.text.secondary,
-  '&.Mui-selected': {
+  borderRadius: '10px',
+  margin: '0 4px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  position: 'relative',
+  overflow: 'hidden',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
+    opacity: 0,
+    transition: 'opacity 0.3s ease',
+  },
+  '&:hover': {
     color: theme.palette.primary.main,
+    transform: 'translateY(-2px)',
+    '&::before': {
+      opacity: 1,
+    },
+  },
+  '&.Mui-selected': {
+    color: '#fff',
     fontWeight: 700,
+    background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
+    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1)',
+    transform: 'translateY(-2px)',
+    '&::before': {
+      opacity: 0,
+    },
+    '& svg': {
+      color: '#fff !important',
+    },
   },
 }))
 
@@ -190,6 +229,7 @@ const AdminManage = () => {
     search: '',
   })
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null })
+  const [editModal, setEditModal] = useState({ open: false, type: null, index: null, data: null })
 
   const tabs = [
     { id: 'uploads', label: 'Uploads', icon: <CloudUploadIcon /> },
@@ -498,7 +538,8 @@ const AdminManage = () => {
   }
 
   const handleEdit = (type, index) => {
-    setEditingRow({ type, index })
+    const rowData = previewData[type].data[index]
+    setEditModal({ open: true, type, index, data: { ...rowData } })
   }
 
   const handleSaveEdit = (type, index, updatedRow) => {
@@ -511,7 +552,7 @@ const AdminManage = () => {
       }
       return newData
     })
-    setEditingRow(null)
+    setEditModal({ open: false, type: null, index: null, data: null })
     toast.success('Row updated')
   }
 
@@ -948,24 +989,62 @@ const AdminManage = () => {
               {activeTab === 0 && (
                 <Box>
                   {/* Exam Type Selection */}
-                  <Card sx={{ mb: 3, borderRadius: 3 }}>
-                    <CardContent>
-                      <Typography variant="h6" fontWeight={700} gutterBottom>
+                  <Card sx={{
+                    mb: 3,
+                    borderRadius: 3,
+                    border: '2px solid',
+                    borderColor: alpha('#06b6d4', 0.2),
+                    background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%)',
+                    overflow: 'hidden'
+                  }}>
+                    <Box sx={{
+                      background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
+                      p: 2,
+                      mb: 2
+                    }}>
+                      <Typography variant="h6" fontWeight={700} sx={{ color: 'white', display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <FileTextIcon />
                         Select Exam Type for Upload
                       </Typography>
-                      <FormControl component="fieldset" sx={{ mb: 3 }}>
+                    </Box>
+                    <CardContent sx={{ pt: 0 }}>
+                      <FormControl component="fieldset" sx={{ mb: 3, width: '100%' }}>
                         <RadioGroup
                           row
                           value={examType}
                           onChange={(e) => setExamType(e.target.value)}
-                          sx={{ gap: 3 }}
+                          sx={{
+                            gap: 2,
+                            flexWrap: { xs: 'wrap', sm: 'nowrap' },
+                            '& .MuiFormControlLabel-root': {
+                              flex: { xs: '1 1 100%', sm: '1 1 0' },
+                              m: 0,
+                              p: 1.5,
+                              borderRadius: 2,
+                              border: '2px solid',
+                              borderColor: 'divider',
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                borderColor: 'primary.main',
+                                background: alpha('#06b6d4', 0.05),
+                              }
+                            },
+                            '& .Mui-checked + .MuiFormControlLabel-label': {
+                              fontWeight: 700,
+                            }
+                          }}
                         >
                           <FormControlLabel value="mid-term" control={<Radio />} label="Mid-Term Examinations" />
                           <FormControlLabel value="semester" control={<Radio />} label="Semester Examination" />
                           <FormControlLabel value="labs" control={<Radio />} label="Labs (External/Internal)" />
                         </RadioGroup>
                       </FormControl>
-                      <Alert severity="info" sx={{ borderRadius: 2 }}>
+                      <Alert severity="info" sx={{
+                        borderRadius: 2,
+                        border: '2px solid',
+                        borderColor: alpha('#06b6d4', 0.3),
+                        background: alpha('#06b6d4', 0.05)
+                      }}>
                         <Typography variant="body2" fontWeight={600} gutterBottom>
                           Auto Allocation Logic:
                         </Typography>
@@ -989,13 +1068,27 @@ const AdminManage = () => {
                   <Box sx={{ display: 'flex', gap: 2.5, mb: 3, flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
                     {uploadSections.map((section) => (
                       <Box key={section.type} sx={{ flex: { xs: '1 1 100%', md: '1 1 0' }, minWidth: 0, display: 'flex' }}>
-                        <Card sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', borderRadius: 2 }}>
+                        <Card sx={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          borderRadius: 3,
+                          border: '2px solid',
+                          borderColor: alpha('#06b6d4', 0.2),
+                          transition: 'all 0.3s ease',
+                          '&:hover': {
+                            borderColor: alpha('#06b6d4', 0.5),
+                            boxShadow: `0 8px 24px ${alpha('#06b6d4', 0.15)}`,
+                            transform: 'translateY(-4px)'
+                          }
+                        }}>
                           <CardContent sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
                             <Box display="flex" alignItems="flex-start" gap={1.5} mb={1.5}>
                               <Box
                                 sx={{
                                   p: 1,
-                                  bgcolor: alpha('#1a56db', 0.1),
+                                  background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
                                   borderRadius: 1.5,
                                   display: 'flex',
                                   alignItems: 'center',
@@ -1003,9 +1096,10 @@ const AdminManage = () => {
                                   minWidth: 40,
                                   height: 40,
                                   flexShrink: 0,
+                                  boxShadow: `0 4px 12px ${alpha('#06b6d4', 0.3)}`
                                 }}
                               >
-                                <FileTextIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+                                <FileTextIcon sx={{ color: 'white', fontSize: 20 }} />
                               </Box>
                               <Box flex={1}>
                                 <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 0.5, fontSize: '0.9375rem' }}>
@@ -1021,13 +1115,15 @@ const AdminManage = () => {
                               {previewData[section.type] && (
                                 <Box
                                   sx={{
-                                    bgcolor: alpha('#06b6d4', 0.1),
+                                    background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)',
                                     p: 1,
                                     borderRadius: 1.5,
                                     mb: 1.5,
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
+                                    border: '2px solid',
+                                    borderColor: alpha('#06b6d4', 0.3)
                                   }}
                                 >
                                   <Typography variant="caption" fontWeight={600} sx={{ fontSize: '0.75rem' }}>
@@ -1044,10 +1140,19 @@ const AdminManage = () => {
                                     <Button
                                       size="small"
                                       variant="contained"
-                                      color="success"
                                       onClick={() => handleSave(section.type)}
                                       disabled={uploading[section.type]}
-                                      sx={{ textTransform: 'none', minWidth: 'auto', px: 1, py: 0.5, fontSize: '0.75rem' }}
+                                      sx={{
+                                        textTransform: 'none',
+                                        minWidth: 'auto',
+                                        px: 1,
+                                        py: 0.5,
+                                        fontSize: '0.75rem',
+                                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                        '&:hover': {
+                                          background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                                        }
+                                      }}
                                     >
                                       {uploading[section.type] ? 'Saving...' : 'Save'}
                                     </Button>
@@ -1077,7 +1182,20 @@ const AdminManage = () => {
                                   size="small"
                                   startIcon={<UploadIcon />}
                                   disabled={uploading[section.type]}
-                                  sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.8125rem', py: 0.75 }}
+                                  sx={{
+                                    textTransform: 'none',
+                                    fontWeight: 600,
+                                    fontSize: '0.8125rem',
+                                    py: 0.75,
+                                    background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
+                                    boxShadow: `0 4px 12px ${alpha('#06b6d4', 0.3)}`,
+                                    '&:hover': {
+                                      background: 'linear-gradient(135deg, #0891b2 0%, #2563eb 50%, #7c3aed 100%)',
+                                      boxShadow: `0 6px 16px ${alpha('#06b6d4', 0.4)}`,
+                                      transform: 'translateY(-2px)'
+                                    },
+                                    transition: 'all 0.3s ease'
+                                  }}
                                 >
                                   Choose File
                                 </Button>
@@ -1115,7 +1233,6 @@ const AdminManage = () => {
                     if (!preview) return null
 
                     const headers = getTableHeaders(type)
-                    const isEditing = editingRow?.type === type
 
                     return (
                       <Card key={type} sx={{ mb: 3, borderRadius: 3, overflow: 'hidden' }}>
@@ -1156,81 +1273,44 @@ const AdminManage = () => {
                               </StyledTableHead>
                               <TableBody>
                                 {preview.data.map((row, index) => {
-                                  const isRowEditing = isEditing && editingRow.index === index
 
                                   return (
                                     <StyledTableRow key={index} error={row._isValid === false}>
                                       <StyledTableCell>
-                                        {isRowEditing ? (
-                                          <Box display="flex" gap={0.5}>
-                                            <IconButton
-                                              size="small"
-                                              color="success"
-                                              onClick={() => {
-                                                const updated = {}
-                                                headers.forEach((header) => {
-                                                  const input = document.getElementById(`${type}-${index}-${header}`)
-                                                  if (input) updated[header] = input.value
-                                                })
-                                                handleSaveEdit(type, index, updated)
-                                              }}
-                                            >
-                                              <CheckIcon fontSize="small" />
-                                            </IconButton>
-                                            <IconButton
-                                              size="small"
-                                              color="error"
-                                              onClick={() => setEditingRow(null)}
-                                            >
-                                              <CancelIcon fontSize="small" />
-                                            </IconButton>
-                                          </Box>
-                                        ) : (
-                                          <Box display="flex" gap={0.5}>
-                                            <IconButton
-                                              size="small"
-                                              color="primary"
-                                              onClick={() => handleEdit(type, index)}
-                                            >
-                                              <EditIcon fontSize="small" />
-                                            </IconButton>
-                                            <IconButton
-                                              size="small"
-                                              color="error"
-                                              onClick={() => handleDelete(type, index)}
-                                            >
-                                              <DeleteIcon fontSize="small" />
-                                            </IconButton>
-                                          </Box>
-                                        )}
+                                        <Box display="flex" gap={0.5}>
+                                          <IconButton
+                                            size="small"
+                                            color="primary"
+                                            onClick={() => handleEdit(type, index)}
+                                          >
+                                            <EditIcon fontSize="small" />
+                                          </IconButton>
+                                          <IconButton
+                                            size="small"
+                                            color="error"
+                                            onClick={() => handleDelete(type, index)}
+                                          >
+                                            <DeleteIcon fontSize="small" />
+                                          </IconButton>
+                                        </Box>
                                       </StyledTableCell>
                                       {headers.map((header) => {
                                         const value = row[header]
                                         const displayValue = value !== null && value !== undefined ? String(value) : '-'
                                         return (
                                           <StyledTableCell key={header}>
-                                            {isRowEditing ? (
-                                              <TextField
-                                                id={`${type}-${index}-${header}`}
-                                                defaultValue={displayValue}
-                                                size="small"
-                                                fullWidth
-                                                sx={{ '& .MuiOutlinedInput-root': { fontSize: '0.875rem' } }}
-                                              />
-                                            ) : (
-                                              <Typography
-                                                variant="body2"
-                                                color={row._isValid === false ? 'error' : 'text.primary'}
-                                              >
-                                                {displayValue}
-                                                {row._errors && row._errors.length > 0 && (
-                                                  <Typography component="span" color="error.main" title={row._errors.join(', ')}>
-                                                    {' '}
-                                                    ⚠
-                                                  </Typography>
-                                                )}
-                                              </Typography>
-                                            )}
+                                            <Typography
+                                              variant="body2"
+                                              color={row._isValid === false ? 'error' : 'text.primary'}
+                                            >
+                                              {displayValue}
+                                              {row._errors && row._errors.length > 0 && (
+                                                <Typography component="span" color="error.main" title={row._errors.join(', ')}>
+                                                  {' '}
+                                                  ⚠
+                                                </Typography>
+                                              )}
+                                            </Typography>
                                           </StyledTableCell>
                                         )
                                       })}
@@ -1267,6 +1347,70 @@ const AdminManage = () => {
                 sx={{ textTransform: 'none' }}
               >
                 Confirm
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Edit Modal */}
+          <Dialog
+            open={editModal.open}
+            onClose={() => setEditModal({ open: false, type: null, index: null, data: null })}
+            maxWidth="md"
+            fullWidth
+          >
+            <DialogTitle sx={{
+              background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
+              color: 'white',
+              fontWeight: 700
+            }}>
+              Edit Row Data
+            </DialogTitle>
+            <DialogContent sx={{ mt: 2 }}>
+              {editModal.data && editModal.type && (
+                <Grid container spacing={2} sx={{ mt: 0.5 }}>
+                  {getTableHeaders(editModal.type).map((header) => (
+                    <Grid item xs={12} sm={6} key={header}>
+                      <TextField
+                        fullWidth
+                        label={header}
+                        value={editModal.data[header] || ''}
+                        onChange={(e) => {
+                          setEditModal(prev => ({
+                            ...prev,
+                            data: { ...prev.data, [header]: e.target.value }
+                          }))
+                        }}
+                        size="small"
+                        variant="outlined"
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
+            </DialogContent>
+            <DialogActions sx={{ px: 3, pb: 2 }}>
+              <Button
+                onClick={() => setEditModal({ open: false, type: null, index: null, data: null })}
+                sx={{ textTransform: 'none' }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  if (editModal.type !== null && editModal.index !== null && editModal.data) {
+                    handleSaveEdit(editModal.type, editModal.index, editModal.data)
+                  }
+                }}
+                variant="contained"
+                sx={{
+                  textTransform: 'none',
+                  background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #0891b2 0%, #2563eb 50%, #7c3aed 100%)',
+                  }
+                }}
+              >
+                Save Changes
               </Button>
             </DialogActions>
           </Dialog>

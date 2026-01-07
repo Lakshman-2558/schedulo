@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Layout from '../../components/Layout'
-import axios from 'axios'
+import api from '../../utils/api'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -14,7 +14,7 @@ const AdminConflicts = () => {
 
   const fetchConflicts = async () => {
     try {
-      const response = await axios.get('/api/conflicts')
+      const response = await api.get('/conflicts')
       setConflicts(response.data.data)
     } catch (error) {
       toast.error('Error fetching conflicts')
@@ -25,7 +25,7 @@ const AdminConflicts = () => {
 
   const handleDetect = async () => {
     try {
-      const response = await axios.post('/api/conflicts/detect')
+      const response = await api.post('/conflicts/detect')
       toast.success(response.data.message)
       fetchConflicts()
     } catch (error) {
@@ -35,7 +35,7 @@ const AdminConflicts = () => {
 
   const handleResolve = async (conflictId) => {
     try {
-      await axios.patch(`/api/conflicts/${conflictId}/resolve`)
+      await api.patch(`/conflicts/${conflictId}/resolve`)
       toast.success('Conflict marked as resolved')
       fetchConflicts()
     } catch (error) {
@@ -76,10 +76,10 @@ const AdminConflicts = () => {
                 <div
                   key={conflict._id}
                   className={`border-l-4 p-4 rounded ${conflict.severity === 'high'
-                      ? 'border-red-500 bg-red-50'
-                      : conflict.severity === 'medium'
-                        ? 'border-yellow-500 bg-yellow-50'
-                        : 'border-blue-500 bg-blue-50'
+                    ? 'border-red-500 bg-red-50'
+                    : conflict.severity === 'medium'
+                      ? 'border-yellow-500 bg-yellow-50'
+                      : 'border-blue-500 bg-blue-50'
                     }`}
                 >
                   <div className="flex justify-between items-start">
@@ -87,10 +87,10 @@ const AdminConflicts = () => {
                       <div className="flex items-center space-x-2 mb-2">
                         <span
                           className={`px-2 py-1 text-xs font-semibold rounded-full ${conflict.severity === 'high'
-                              ? 'bg-red-100 text-red-800'
-                              : conflict.severity === 'medium'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-blue-100 text-blue-800'
+                            ? 'bg-red-100 text-red-800'
+                            : conflict.severity === 'medium'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-blue-100 text-blue-800'
                             }`}
                         >
                           {conflict.severity.toUpperCase()}

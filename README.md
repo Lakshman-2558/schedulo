@@ -4,6 +4,41 @@ A **production-ready** full-stack application for automated invigilator allocati
 
 > **Modern UI/UX**: Built with a stunning Gemini aesthetic featuring glassmorphism effects, vibrant gradients, dark mode support, and fluid animations for an exceptional user experience.
 
+---
+
+## 🆕 Recent Updates
+
+### 🚀 Latest Updates (Jan 2026)
+#### Admin Exam Timetable Module (Major Upgrade)
+- ✅ **Dynamic Upload Interface** - "Exam Type" selection (Mid-Term vs. Semester) now drives the UI.
+  - Upload sections stay hidden until a type is selected, preventing user errors.
+  - "None" selection instantly clears the uploading interface and timetable view.
+- ✅ **Smart Validation Logic** - Backend now strictly enforces specific limits based on exam type:
+  - **Semester**: Max 1 exam per day per department.
+  - **Mid-Term**: Max 2 exams per day per department.
+- ✅ **Mobile-First Timetable View** - Completely redesigned mobile experience.
+  - **Card Layout**: On mobile, the complex table transforms into elegant, stacked "Date Cards".
+  - **Responsive Headers**: Large titles automatically resize for smaller screens to fit perfectly.
+  - **Department Grouping**: Exams are cleanly grouped by department within each date card.
+- ✅ **Premium UI Tweaks** - "Choose File" button now features a vibrant gradient with 3D hover lift effects.
+
+#### Admin Performance & Filters Overhaul (Major Upgrade)
+- ✅ **Instantaneous Filtering** - Implemented advanced client-side filtering with **Debouncing** and **Caching**.
+  - **Zero Latency**: Searching Allocations, Exams, or Faculty is now instant, with no server round-trips for search queries.
+  - **Smart Memoization**: Heavy lifting is handled by `useMemo`, ensuring smooth 60fps scrolling even with large datasets.
+- ✅ **Dynamic Data Filters** - "Campus" and "Department" filters are now fully dynamic and context-aware.
+  - **Auto-Fetch**: Dropdowns populate automatically from the database.
+  - **Smart Linking**: Selecting a Campus automatically filters and resets the Department dropdown to only show relevant options.
+- ✅ **Authentication Hardening** - Upgraded all Admin modules (`AdminAllocations`, `AdminExams`, `AdminFaculty`, `AdminSchedule`) to use the secure `api` utility.
+  - **Token Handling**: Eliminates "401 Unauthorized" errors by ensuring every request is properly signed with the latest auth token.
+
+#### General Improvements
+- ✅ **Dev Environment Fixes** - Resolved CORS issues by correctly pointing development builds to localhost API.
+- ✅ **Login & Dashboard Polish** - Refined login form aesthetics with better spacing; improved Dashboard statistics layout on mobile.
+- ✅ **Analytics Aesthetic** - Enhanced "Glassmorphism" look for the Analytics dashboard.
+
+---
+
 ## 🚀 Features Overview
 
 ### 🔐 User Roles

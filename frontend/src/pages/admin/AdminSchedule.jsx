@@ -42,11 +42,18 @@ import {
 import { styled } from '@mui/material/styles'
 
 const StyledTabs = styled(Tabs)(({ theme }) => ({
-  minHeight: 48,
-  '&.MuiTabs-indicator': {
+  minHeight: 56,
+  background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
+  borderRadius: '12px 12px 0 0',
+  padding: '4px',
+  '& .MuiTabs-indicator': {
     height: 4,
     borderRadius: '4px 4px 0 0',
-    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+    background: 'linear-gradient(90deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
+    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)',
+  },
+  '& .MuiTabs-flexContainer': {
+    gap: '8px',
   },
 }))
 
@@ -56,9 +63,41 @@ const StyledTab = styled(Tab)(({ theme }) => ({
   fontWeight: 600,
   fontSize: '0.9375rem',
   color: theme.palette.text.secondary,
-  '&.Mui-selected': {
+  borderRadius: '10px',
+  margin: '0 4px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  position: 'relative',
+  overflow: 'hidden',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
+    opacity: 0,
+    transition: 'opacity 0.3s ease',
+  },
+  '&:hover': {
     color: theme.palette.primary.main,
+    transform: 'translateY(-2px)',
+    '&::before': {
+      opacity: 1,
+    },
+  },
+  '&.Mui-selected': {
+    color: '#fff',
     fontWeight: 700,
+    background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
+    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1)',
+    transform: 'translateY(-2px)',
+    '&::before': {
+      opacity: 0,
+    },
+    '& svg': {
+      color: '#fff !important',
+    },
   },
 }))
 
@@ -72,7 +111,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }))
 
 const StyledHeaderCell = styled(TableCell)(({ theme }) => ({
-  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important',
+  background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%) !important',
   color: 'white !important',
   fontWeight: '700 !important',
   fontSize: '0.875rem !important',
@@ -301,7 +340,7 @@ const AdminSchedule = () => {
               fontWeight={700}
               gutterBottom
               sx={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -472,6 +511,10 @@ const AdminSchedule = () => {
                                       sx={{
                                         textTransform: 'none',
                                         fontWeight: 600,
+                                        background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
+                                        '&:hover': {
+                                          background: 'linear-gradient(135deg, #0891b2 0%, #2563eb 50%, #7c3aed 100%)',
+                                        }
                                       }}
                                     >
                                       Allocate
@@ -630,7 +673,14 @@ const AdminSchedule = () => {
                       variant="contained"
                       startIcon={<RefreshIcon />}
                       onClick={handleDetectConflicts}
-                      sx={{ textTransform: 'none', fontWeight: 600 }}
+                      sx={{
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, #0891b2 0%, #2563eb 50%, #7c3aed 100%)',
+                        }
+                      }}
                     >
                       Detect Conflicts
                     </Button>

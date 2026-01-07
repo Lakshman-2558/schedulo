@@ -39,6 +39,9 @@ const GradientCard = styled(Card)(({ theme, gradient }) => ({
   overflow: 'hidden',
   textDecoration: 'none',
   display: 'block',
+  [theme.breakpoints.down('sm')]: {
+    borderRadius: 16,
+  },
   '&:hover': {
     transform: 'translateY(-8px)',
     boxShadow: theme.shadows[12],
@@ -53,16 +56,24 @@ const GradientCard = styled(Card)(({ theme, gradient }) => ({
     background: 'rgba(255, 255, 255, 0.1)',
     borderRadius: '50%',
     transform: 'translate(30%, -30%)',
+    [theme.breakpoints.down('sm')]: {
+      width: '100px',
+      height: '100px',
+    },
   },
 }))
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
   padding: theme.spacing(2),
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1.5),
+    fontSize: '0.875rem',
+  },
 }))
 
 const StyledHeaderCell = styled(TableCell)(({ theme }) => ({
-  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important',
+  background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%) !important',
   color: 'white !important',
   fontWeight: '700 !important',
   fontSize: '0.875rem !important',
@@ -70,6 +81,10 @@ const StyledHeaderCell = styled(TableCell)(({ theme }) => ({
   letterSpacing: '0.5px',
   padding: theme.spacing(2),
   borderBottom: 'none !important',
+  [theme.breakpoints.down('sm')]: {
+    padding: `${theme.spacing(1.5)} !important`,
+    fontSize: '0.75rem !important',
+  },
 }))
 
 const AdminDashboard = () => {
@@ -182,17 +197,38 @@ const AdminDashboard = () => {
             {statCards.map((stat, index) => (
               <Grow in timeout={700 + index * 100} key={index}>
                 <GradientCard component={Link} to={stat.link} gradient={stat.gradient}>
-                  <CardContent sx={{ position: 'relative', zIndex: 1 }}>
+                  <CardContent sx={{
+                    position: 'relative',
+                    zIndex: 1,
+                    p: { xs: 2, sm: 3 },
+                    '&:last-child': { pb: { xs: 2, sm: 3 } }
+                  }}>
                     <Box display="flex" alignItems="center" justifyContent="space-between">
                       <Box>
-                        <Typography variant="body2" sx={{ opacity: 0.9, mb: 1 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            opacity: 0.9,
+                            mb: 1,
+                            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                          }}
+                        >
                           {stat.title}
                         </Typography>
-                        <Typography variant="h3" fontWeight={700}>
+                        <Typography
+                          variant="h3"
+                          fontWeight={700}
+                          sx={{
+                            fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
+                          }}
+                        >
                           {stat.value}
                         </Typography>
                       </Box>
-                      <stat.icon sx={{ fontSize: 48, opacity: 0.3 }} />
+                      <stat.icon sx={{
+                        fontSize: { xs: 36, sm: 42, md: 48 },
+                        opacity: 0.3
+                      }} />
                     </Box>
                   </CardContent>
                 </GradientCard>
@@ -212,8 +248,8 @@ const AdminDashboard = () => {
                     Latest invigilation assignments
                   </Typography>
                 </Box>
-                <TableContainer>
-                  <Table>
+                <TableContainer sx={{ overflowX: 'auto' }}>
+                  <Table sx={{ minWidth: { xs: 600, md: 'auto' } }}>
                     <TableHead>
                       <TableRow>
                         <StyledHeaderCell>Date</StyledHeaderCell>

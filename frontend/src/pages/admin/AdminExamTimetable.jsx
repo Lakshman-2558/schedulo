@@ -383,6 +383,7 @@ const AdminExamTimetable = () => {
                   onChange={(e) => {
                     setExamType('')
                     setDisplayExamType(null)
+                    setUploadErrors(null) // Clear upload errors on reset
                   }}
                   className="w-5 h-5 text-primary-600 focus:ring-primary-500"
                 />
@@ -408,10 +409,10 @@ const AdminExamTimetable = () => {
             />
             <label
               htmlFor="timetable-upload"
-              className={`btn-primary flex items-center space-x-2 cursor-pointer ${uploading ? 'opacity-50 cursor-not-allowed' : ''
+              className={`inline-flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 cursor-pointer ${uploading || !examType ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
             >
-              <Upload className="w-4 h-4" />
+              <Upload className="w-5 h-5" />
               <span>{uploading ? 'Uploading...' : 'Choose File'}</span>
             </label>
             <div className="text-xs text-gray-500">
@@ -518,7 +519,8 @@ const AdminExamTimetable = () => {
                 </div>
               )}
 
-              <div className="overflow-x-auto -mx-4 sm:mx-0">
+              {/* Desktop Table View */}
+              <div className="hidden lg:block overflow-x-auto -mx-4 sm:mx-0">
                 <div className="inline-block min-w-full align-middle">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gradient-to-r from-blue-600 to-indigo-600">
@@ -580,6 +582,61 @@ const AdminExamTimetable = () => {
                     </tbody>
                   </table>
                 </div>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="lg:hidden space-y-6">
+                {dates.map((date) => (
+                  <div key={date} className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg border-2 border-blue-200 overflow-hidden">
+                    {/* Date Card Header */}
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-4">
+                      <h3 className="text-lg sm:text-xl font-bold text-white text-center">
+                        {formatDateHeader(date)}
+                      </h3>
+                    </div>
+
+                    {/* Department Groups */}
+                    <div className="p-4 space-y-4">
+                      {timetableDepartments.map((dept) => {
+                        const deptExams = groupedExams[date]?.[dept] || []
+                        if (deptExams.length === 0) return null
+
+                        return (
+                          <div key={dept} className="bg-white rounded-xl shadow-md border border-blue-200 overflow-hidden">
+                            {/* Department Header */}
+                            <div className="bg-gradient-to-r from-blue-100 to-indigo-100 px-4 py-3 border-b-2 border-blue-300">
+                              <h4 className="font-bold text-gray-900 text-sm sm:text-base">
+                                {dept}
+                              </h4>
+                            </div>
+
+                            {/* Exams List */}
+                            <div className="p-3 space-y-2">
+                              {deptExams.map((exam, idx) => (
+                                <div
+                                  key={exam._id || idx}
+                                  className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200 hover:border-blue-400 hover:shadow-md transition-all duration-200"
+                                >
+                                  <p className="font-semibold text-gray-900 text-sm leading-tight mb-1">
+                                    {exam.examName || exam.courseName}
+                                  </p>
+                                  <p className="text-xs text-gray-600 mb-2">
+                                    ({exam.courseCode})
+                                  </p>
+                                  <div className="flex items-center justify-between">
+                                    <p className="text-xs text-blue-600 font-semibold">
+                                      {exam.startTime} - {exam.endTime}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

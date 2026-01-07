@@ -1,12 +1,14 @@
 import { useEffect, useState, useMemo } from 'react'
 import Layout from '../../components/Layout'
-import axios from 'axios'
+import api from '../../utils/api'
 import { Plus, Search } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const AdminExams = () => {
   const [exams, setExams] = useState([])
   const [loading, setLoading] = useState(true)
+  const [campuses, setCampuses] = useState([])
+  const [departments, setDepartments] = useState([])
   const [filters, setFilters] = useState({
     campus: '',
     department: '',
@@ -15,8 +17,39 @@ const AdminExams = () => {
   })
 
   useEffect(() => {
+    fetchCampuses()
+    fetchDepartments()
+  }, [])
+
+  useEffect(() => {
+    if (filters.campus) {
+      fetchDepartments()
+    }
+  }, [filters.campus])
+
+  useEffect(() => {
     fetchExams()
   }, [filters.campus, filters.department, filters.status])
+
+  const fetchCampuses = async () => {
+    try {
+      const response = await api.get('/admin/campuses')
+      setCampuses(response.data.data || [])
+    } catch (error) {
+      console.error('Error fetching campuses:', error)
+    }
+  }
+
+  const fetchDepartments = async () => {
+    try {
+      const params = new URLSearchParams()
+      if (filters.campus) params.append('campus', filters.campus)
+      const response = await api.get(`/admin/departments?${params}`)
+      setDepartments(response.data.data || [])
+    } catch (error) {
+      console.error('Error fetching departments:', error)
+    }
+  }
 
   const fetchExams = async () => {
     try {
@@ -25,7 +58,7 @@ const AdminExams = () => {
       if (filters.department) params.append('department', filters.department)
       if (filters.status) params.append('status', filters.status)
 
-      const response = await axios.get(`/api/admin/exams?${params}`)
+      const response = await api.get(`/admin/exams?${params}`)
       setExams(response.data.data || [])
     } catch (error) {
       toast.error('Error fetching exams')
@@ -46,7 +79,7 @@ const AdminExams = () => {
 
   const handleAllocate = async (examId) => {
     try {
-      const response = await axios.post('/api/admin/allocate', { examIds: [examId] })
+      const response = await api.post('/admin/allocate', { examIds: [examId] })
       toast.success('Allocation completed')
       fetchExams()
     } catch (error) {
@@ -86,10 +119,17 @@ const AdminExams = () => {
             </div>
             <select
               value={filters.campus}
-              onChange={(e) => setFilters({ ...filters, campus: e.target.value })}
+              onChange={(e) => {
+                setFilters({ ...filters, campus: e.target.value, department: '' })
+              }}
               className="input-field"
             >
               <option value="">All Campuses</option>
+              {campuses.map((campus) => (
+                <option key={campus} value={campus}>
+                  {campus}
+                </option>
+              ))}
             </select>
             <select
               value={filters.department}
@@ -97,6 +137,11 @@ const AdminExams = () => {
               className="input-field"
             >
               <option value="">All Departments</option>
+              {departments.map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept}
+                </option>
+              ))}
             </select>
             <select
               value={filters.status}
